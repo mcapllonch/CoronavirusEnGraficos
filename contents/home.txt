@@ -1,0 +1,5 @@
+Key: Introduction
+
+Coronavirus en Gráficos es una página dedicada a proveer información sobre la reciente pandemia del COVID-19, con el objetivo de aclarar dudas y combatir la desinformación. La desinformación es falta de información o la existencia de una información errónea sobre un tema. La propagación irresponsable de información es muy frecuente en Internet y es una de las principales causas de generación de pánico colectivo.
+
+Esta página nace con la intención de proveer información lo más veraz posible sobre el COVID-19 con un formato análitico, fácil de entender y reflexivo, para contribuir a la comprensión objetiva del fenómeno de esta pandemia y evitar el pánico innecesario.

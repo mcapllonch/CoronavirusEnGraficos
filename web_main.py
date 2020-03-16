@@ -23,6 +23,7 @@ import time
 import flask
 
 # from forms import ParamsForm
+import config
 import read_contents
 import workspace as ws
 
@@ -32,7 +33,7 @@ import workspace as ws
 # Application
 app = flask.Flask(__name__)
 # Security
-app.config['SECRET_KEY'] = 'jlasjdgh098wv9i'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Read contents
 read_contents.read_folders()

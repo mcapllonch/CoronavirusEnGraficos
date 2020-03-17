@@ -1,3 +1,7 @@
-./.env
+.env
 # ./contents/*txt
-./static/images/*
+**/website/static/images/*
+__pycache__
+data/archived_data/
+data/csse_covid_19_data/
+data/README.md/

@@ -1,3 +1,0 @@
-Key: graphs
-
-Esta es la página de gráficos.

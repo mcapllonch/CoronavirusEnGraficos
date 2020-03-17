@@ -13,13 +13,17 @@
 		{% endwith %}
 		{% block content %}
 			<div class="content-section" style="white-space: pre-wrap">
-				<span>
+				<p>
 					{{ content }}
-				</span>
+				</p>
 			</div>
 			<div class="content-section" style="white-space: pre-wrap">
-				<h4>Gráfico</h4>
+				<h4>Evolución del virus en el mundo</h4>
 				<img src="{{ url_for('static', filename='/images/world.png') }}" alt="Gráfico">
+				<h4>Evolución del virus en España</h4>
+				<img src="{{ url_for('static', filename='/images/spain.png') }}" alt="Gráfico">
+				<h4>Evolución del virus en Colombia</h4>
+				<img src="{{ url_for('static', filename='/images/colombia.png') }}" alt="Gráfico">
 			</div>
 		{% endblock content %}
 	</div>

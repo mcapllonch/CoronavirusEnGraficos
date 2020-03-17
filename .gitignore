@@ -1,4 +1,5 @@
 .env
+certs/
 # ./contents/*txt
 **/website/static/images/*
 __pycache__

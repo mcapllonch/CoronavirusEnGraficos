@@ -28,7 +28,7 @@ import workspace as ws
 
 # Analysis folder
 cwd = os.getcwd()
-pardir = os.path.join(cwd, os.pardir)
+pardir = cwd.replace('/code', '')
 ws.folders = {
 	'analysis': cwd, 
 	'data': os.path.join(pardir, 'data'), 

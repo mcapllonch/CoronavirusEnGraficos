@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 import workspace as ws
 
@@ -59,9 +60,63 @@ def show_world_time_series(start, end, df):
 	for variable in variables:
 		ax.plot(dates_, data[variable], label=variable)
 
+	# Date ticks
+	months = mdates.MonthLocator()  # every month
+	days = mdates.DayLocator()  # every month
+	month_fmt = mdates.DateFormatter('%m')
+	# format the ticks
+	if False:
+		ax.xaxis.set_major_locator(months)
+		ax.xaxis.set_major_formatter(month_fmt)
+		ax.xaxis.set_minor_locator(days)
+	# ax.format_xdata = mdates.DateFormatter()
+	plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
+	plt.xticks(rotation=45)
+	# ax.set_xticks()
+	ax.set_xlabel('Date')
+	ax.set_ylabel('Cases')
 	ax.legend()
+	ax.grid(True)
 
-	fig.savefig(os.path.join(ws.folders['website/static/images'], 'world.png'))
+	fig.savefig(os.path.join(ws.folders['website/static/images'], 'world.png'), bbox_inches='tight')
+	plt.show()
+
+def show_world_death_ratio_I(start, end, df):
+	""" Show the time series of the world """
+	fig, ax = plt.subplots()
+	start_index, end_index = get_start_end(start, end)
+	data = {}
+	variables = ['confirmed', 'recovered', 'deaths']
+	for variable in variables:
+		dates_, data[variable] = get_single_time_series(df, variable, start_index, end_index)
+
+	# Variable 'death ratio'
+	data['resolved'] = data['recovered'] + data['deaths']
+	data['deaths over total'] = data['deaths'] / data['confirmed']
+	data['deaths over resolved'] = data['deaths'] / data['resolved']
+
+	ax.plot(dates_, data['deaths over total'], label='deaths over total')
+	ax.plot(dates_, data['deaths over resolved'], label='deaths over resolved')
+
+	# Date ticks
+	months = mdates.MonthLocator()  # every month
+	days = mdates.DayLocator()  # every month
+	month_fmt = mdates.DateFormatter('%m')
+	# format the ticks
+	if False:
+		ax.xaxis.set_major_locator(months)
+		ax.xaxis.set_major_formatter(month_fmt)
+		ax.xaxis.set_minor_locator(days)
+	# ax.format_xdata = mdates.DateFormatter()
+	plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
+	plt.xticks(rotation=45)
+	# ax.set_xticks()
+	ax.set_xlabel('Date')
+	ax.set_ylabel('Ratios')
+	ax.legend()
+	ax.grid(True)
+
+	fig.savefig(os.path.join(ws.folders['website/static/images'], 'world_death_ratio_I.png'), bbox_inches='tight')
 	# plt.show()
 
 def show_country(country, variables, start, end, df):
@@ -93,6 +148,6 @@ def show_country(country, variables, start, end, df):
 	ax.legend()
 	ax.set_title(country)
 
-	fig.savefig(os.path.join(ws.folders['website/static/images'], '%s.png'%country.replace(' ', '_').lower()))
+	fig.savefig(os.path.join(ws.folders['website/static/images'], '%s.png'%country.replace(' ', '_').lower()), bbox_inches='tight')
 	# plt.show()
 

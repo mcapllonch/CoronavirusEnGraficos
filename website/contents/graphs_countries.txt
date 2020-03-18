@@ -1,0 +1,3 @@
+Key: graphs_countries
+
+En esta página se presentan tres gráficos: la evolución del virus en el mundo y la evolución del virus en España y en Colombia a nivel nacional.

@@ -115,5 +115,6 @@ def test_analysis():
 	ws.date_indices = date_indices
 	ws.dates = dates
 	tls.show_world_time_series(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
+	tls.show_world_death_ratio_I(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
 	tls.show_country('Spain', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)
 	tls.show_country('Colombia', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)

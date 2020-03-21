@@ -32,6 +32,8 @@ import workspace as ws
 
 def test_analysis():
 	""" This is a test data analysis that will be improved later on """
+	global ds_new
+	
 
 	# Folder where the time series are stored
 	folder = '../data/csse_covid_19_data/csse_covid_19_time_series/'
@@ -118,3 +120,11 @@ def test_analysis():
 	tls.show_world_death_ratio_I(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
 	tls.show_country('Spain', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)
 	tls.show_country('Colombia', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)
+	tls.show_cases_per_day(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
+	tls.show_balance_per_day(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
+	tls.stackplot(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
+	
+	# More analysis
+	tls.analysis_01(ws.dates_keys[10], ws.dates_keys[-1], ds_new)
+	tls.analysis_02(ws.dates_keys[10], ws.dates_keys[-1], ds_new)
+	tls.analysis_03(ws.dates_keys[10], ws.dates_keys[-1], ds_new)

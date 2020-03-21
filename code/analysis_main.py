@@ -37,5 +37,15 @@ ws.folders = {
 ws.folders['website/static'] = os.path.join(ws.folders['website'], 'static')
 ws.folders['website/static/images'] = os.path.join(ws.folders['website/static'], 'images')
 
+# Colors by variable
+ws.varcolors = {
+	'confirmed': 'r', 
+	'recovered': 'g', 
+	'deaths': 'gray', 
+	'resolved': 'b', 
+	'balance': 'k', 
+	'existing': 'orange', 
+}
+
 # Analyze it and generate products
 rts.test_analysis()

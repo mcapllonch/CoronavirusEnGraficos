@@ -18,8 +18,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 Contain useful functions
 """
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 
 def str2date(s, format_):
 	""" Convert a date from str to datetime.date object """
 	return datetime.strptime(s, format_).date()
+
+def configure_axes(ax, xlims, xlabel=None, ylabel=None, title=None):
+	""" Do the most common tasks of preparing an axes frame for a figure """
+	plt.xticks(rotation=45)
+	ax.set_xlabel(xlabel)
+	ax.set_ylabel(ylabel)
+	ax.legend()
+	ax.set_xlim(*xlims)
+	ax.grid(True, color='#D3D3D3')
+	ax.set_title(title)

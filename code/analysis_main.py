@@ -69,7 +69,6 @@ def make_graphs():
 		tls.analysis_02(ws.dates_keys[10], ws.dates_keys[-1], ws.data)
 		tls.analysis_03(ws.dates_keys[10], ws.dates_keys[-1], ws.data)
 
-		print(ws.dates_keys, dates)
 		tls.show_news('Spain', ['confirmed'], ws.dates_keys[0], ws.dates_keys[-1], ws.data)
 
 	tls.world_bokeh(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
@@ -79,7 +78,6 @@ def num_data_for_website():
 
 	# Date of last update
 	last_date = list(ws.dates.keys())[-1]
-	print('Last update: %s'%last_date)
 	with open(os.path.join(ws.folders['website/static/data'], 'last_update.txt'), 'w') as f:
 		f.write(last_date)
 
@@ -87,7 +85,7 @@ def run_analysis():
 	""" Run a sample analysis """
 
 	# Analyze it and generate products
-	rts.test_analysis()
+	rts.read_daily_reports_JHU_CSSE()
 
 	# Make graphs
 	make_graphs()

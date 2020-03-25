@@ -22,6 +22,7 @@ import csv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
 from collections import OrderedDict
 
 import utils as utl
@@ -30,10 +31,8 @@ import workspace as ws
 
 
 
-def test_analysis():
+def read_time_series_01():
 	""" This is a test data analysis that will be improved later on """
-	global ds_new
-	
 
 	# Folder where the time series are stored
 	folder = '../data/csse_covid_19_data/csse_covid_19_time_series/'
@@ -106,6 +105,70 @@ def test_analysis():
 		ds_new.loc[start:end, 'Date Value'] = list(dates.values())
 		for variable in ['confirmed', 'recovered', 'deaths']:
 			ds_new.loc[start:end, variable] = data[variable].loc[i][previous_keys].tolist()
+
+	# Show the time series for the whole world
+	ws.dates_keys = list(dates.keys())
+	ws.date_indices = date_indices
+	ws.dates = dates
+
+	# Save the dataframe in the workspace
+	ws.data = ds_new
+
+def read_daily_reports_JHU_CSSE():
+	""" Read daily reports from John Hopkins University's GitHub repo """	
+
+	# Folder where the time series are stored
+	folder = '../data/csse_covid_19_data/csse_covid_19_daily_reports/'
+
+	files = sorted([os.path.join(folder, item) for item in os.listdir(folder) if '.csv' in item])
+
+	# # Columns that the datasets will have
+	# columns = []
+
+	# Dictionary for the data
+	data = OrderedDict()
+
+	# Dictionaries for the dates
+	dates = OrderedDict()
+	date_indices = OrderedDict()
+
+	# New data with re-arranged information
+
+	for dr in files:
+		# Get the date from the file name
+		date_str = dr.split('/')[-1].split('.')[0]
+		# Name of the variable (confirmed, deaths or recovered)
+		with open(dr, 'r') as f:
+			dataframe = pd.read_csv(dr)
+			# Add date
+			date = datetime.strptime(date_str, '%m-%d-%Y').date()
+			date_key = date.strftime('%d/%m/%Y')
+			dataframe['date'] = date
+			dataframe['date_key'] = date_key
+
+			# Rename columns
+			dataframe.rename(columns=
+					{
+						'Province/State': 'province_state', 
+						'Country/Region': 'country_region', 
+						'Last Update': 'last_update', 
+						'Lat': 'latitude', 
+						'Long_': 'longitude'
+					}, 
+					inplace=True
+				)
+			# Lower case all the column names
+			dataframe.rename(columns=dict([(s, s.lower()) for s in dataframe.columns]), inplace=True)
+
+			# Save dataframe in dictionary
+			data[date_str] = dataframe
+
+			# Save date
+			dates[date_key] = date
+			date_indices[date_key] = len(dates) - 1
+
+	# Concatenate all the dataframes
+	ds_new = pd.concat(data, ignore_index=True).sort_values(by=['country_region', 'province_state'], ignore_index=True)
 
 	# Show the time series for the whole world
 	ws.dates_keys = list(dates.keys())

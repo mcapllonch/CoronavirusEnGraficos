@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from bokeh.plotting import figure, output_file, show, save
-from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
+from bokeh.models import Range1d, NumeralTickFormatter, DatetimeTickFormatter
 
 import workspace as ws
 import utils as utl
@@ -55,8 +55,8 @@ def get_single_time_series(df, variable, start_index, end_index):
 	Return the dates and values (data) as numpy arrays """
 	dates_ = []
 	data = []
-	for date in ws.dates_keys[start_index:end_index]:
-		data.append(df[df['Date Key'] == date][variable].sum())
+	for date in ws.dates_keys[start_index:end_index + 1]:
+		data.append(df[df['date_key'] == date][variable].sum())
 		dates_.append(ws.dates[date])
 	return np.array(dates_), np.array(data)
 
@@ -521,7 +521,14 @@ def world_bokeh(start, end, df):
 
 		variables = variables + ['existing']
 
-		p = figure(plot_width=800, plot_height=400, x_axis_type="datetime", title="Casos confirmados y existentes en el mundo")
+		p = figure(
+				plot_width=800, 
+				plot_height=400, 
+				x_axis_type="datetime", 
+				title="Casos confirmados y existentes en el mundo", 
+				# x_range=(dates_[0], dates_[-1]), 
+				# y_range=(data['confirmed'].min(), data['confirmed'].max()), 
+			)
 
 		# Add a circle renderer with a size, color and alpha
 		p.circle(dates_, data['confirmed'], size=5, color="navy", alpha=0.5, legend_label='Confirmados')
@@ -538,6 +545,5 @@ def world_bokeh(start, end, df):
 		# show(p)
 
 		# Output to static HTML file
-		print(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
 		output_file(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
 		save(p)

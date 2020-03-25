@@ -21,24 +21,14 @@ Automated script that updates the data and performs data analysis every hour
 import os
 
 import datahandler as dh
-import read_time_series as rts
-import workspace as ws
+import analysis_main as am
 
 
-
-# Analysis folder
-cwd = os.getcwd()
-pardir = cwd.replace('/code', '')
-ws.folders = {
-	'analysis': cwd, 
-	'data': os.path.join(pardir, 'data'), 
-	'website': os.path.join(pardir, 'website')
-}
-ws.folders['website/static'] = os.path.join(ws.folders['website'], 'static')
-ws.folders['website/static/images'] = os.path.join(ws.folders['website/static'], 'images')
+# Set up folders
+am.setup_folders()
 
 # Update data
 dh.update_data()
 
-# Analyze it and generate products
-rts.test_analysis()
+# Run analysis
+am.run_analysis()

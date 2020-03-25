@@ -16,9 +16,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+
+from bokeh.plotting import figure, output_file, show, save
+from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
 
 import workspace as ws
 import utils as utl
@@ -118,9 +122,10 @@ def show_cases_per_day(start, end, df):
 	fig.savefig(os.path.join(ws.folders['website/static/images'], 'cases_per_day.png'), bbox_inches='tight')
 	# plt.show()
 
-def show_country(country, variables, start, end, df):
+def show_country(country, variables, start, end, df, fig=None, ax=None):
 	""" Plot the time series of 'variable' from 'start' to 'end', and for 'country' """
-	fig, ax = plt.subplots()
+	if fig is None and ax is None:
+		fig, ax = plt.subplots()
 	start_index, end_index = get_start_end(start, end)
 
 	# Select the data for 'country'
@@ -146,9 +151,9 @@ def show_country(country, variables, start, end, df):
 
 	utl.configure_axes(ax, xlims=(dates_[0], dates_[-1]), xlabel='Date', ylabel='Cases')
 	ax.set_title(country)
-	ax.set_yscale('log')
+	# ax.set_yscale('log')
 
-	fig.savefig(os.path.join(ws.folders['website/static/images'], '%s.png'%country.replace(' ', '_').lower()), bbox_inches='tight')
+	fig.savefig(os.path.join(ws.folders['website/static/images'], '%s_nolog.png'%country.replace(' ', '_').lower()), bbox_inches='tight')
 	# plt.show()
 
 def show_world_death_ratio_I(start, end, df, country='world'):
@@ -220,7 +225,7 @@ def show_balance_per_day(start, end, df):
 
 	fig.savefig(os.path.join(ws.folders['website/static/images'], 'balance_per_day.png'), bbox_inches='tight')
 	fig2.savefig(os.path.join(ws.folders['website/static/images'], 'balance_per_day_cleaner.png'), bbox_inches='tight')
-	plt.show()
+	# plt.show()
 
 def stackplot(start, end, df):
 	""" Row-stack graph of the infection """
@@ -272,7 +277,7 @@ def stackplot(start, end, df):
 	utl.configure_axes(ax2, xlims=(dates_[0], dates_[-1]), xlabel='Date', ylabel='Cases (%)', title='Evolution over Confirmed')
 	fig2.savefig(os.path.join(ws.folders['website/static/images'], 'stackplot_percentages.png'), bbox_inches='tight')
 
-	plt.show()
+	# plt.show()
 
 def analysis_01(start, end, df):
 	""" Exclusivo para Heath Cube """
@@ -331,7 +336,7 @@ def analysis_01(start, end, df):
 	ax.set_title('Growth Rate (New Cases per Day)')
 
 	fig.savefig(os.path.join(ws.folders['website/static/images'], 'ritmos_01.png'), bbox_inches='tight')
-	plt.show()
+	# plt.show()
 
 def analysis_02(start, end, df):
 	""" Exclusivo para Heath Cube """
@@ -462,3 +467,77 @@ def analysis_03(start, end, df):
 	fig3.savefig(os.path.join(ws.folders['website/static/images'], 'activos_05_02.png'), bbox_inches='tight')
 	# plt.show()
 
+def show_news(country, variables, start, end, df):
+	""" Show the news for a country, along with the curve of the virus """
+
+	fig, ax = plt.subplots(figsize=(20, 40))
+
+	with open('../../news/spain.json', 'r') as f:
+		news = json.load(f)
+
+	if False:
+		for i, n in enumerate(news):
+			print(i, n["title"])
+
+	# Interesting news
+	interesting_news = [0, 2, 5, 8, 10, 12, 14, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33]
+	interesting_news = [0, 2, 5, 19, 22, 23, 24, 25, 26, 27, 28, 29, 33]
+
+	# List dates
+	dates = []
+	for i in interesting_news:
+		n = news[i]
+		dates.append(ws.dates[n["date"]])
+	# Sort them
+	dates, interesting_news = utl.sort_by_date(dates, interesting_news)
+
+	for j, i in enumerate(interesting_news):
+		# Add 1 just to make it human-understandable
+		j += 1
+
+		n = news[i]
+		print(i, n["date"], n["title"])
+		# ax.text(ws.dates[n["date"]], 1, j)
+		ax.text(dates[j - 1], 1, j)
+		ax.axvline(x=ws.dates[n["date"]], c='k', label="%i: %s"%(j, n["title"]))
+		# ax.text(ws.dates[date], df[df['Country/Region'] == country][df['Date'] == date], i)
+
+	show_country('Spain', variables, start, end, df, fig=fig, ax=ax)
+	# plt.show()
+
+def world_bokeh(start, end, df):
+		""" Show the time series of the world in a HTML graph """
+
+		# Get data
+		start_index, end_index = get_start_end(start, end)
+		data = {}
+		variables = ['confirmed', 'recovered', 'deaths']
+		for variable in variables:
+			dates_, data[variable] = get_single_time_series(df, variable, start_index, end_index)
+
+		# Existing cases
+		data['resolved'] = data['recovered'] + data['deaths']
+		data['existing'] = data['confirmed'] - data['resolved']
+
+		variables = variables + ['existing']
+
+		p = figure(plot_width=800, plot_height=400, x_axis_type="datetime", title="Casos confirmados y existentes en el mundo")
+
+		# Add a circle renderer with a size, color and alpha
+		p.circle(dates_, data['confirmed'], size=5, color="navy", alpha=0.5, legend_label='Confirmados')
+		p.circle(dates_, data['existing'], size=5, color="yellow", alpha=0.5, legend_label='Existentes')
+
+		# Arrange figure
+		p.xaxis.axis_label = 'Fecha'
+		p.yaxis.axis_label = 'Número de casos'
+		p.legend.location = 'top_left'
+		p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
+		p.yaxis.formatter = NumeralTickFormatter(format="0")
+		p.toolbar.logo = None
+
+		# show(p)
+
+		# Output to static HTML file
+		print(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
+		output_file(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
+		save(p)

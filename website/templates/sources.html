@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="col-md-8">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="alert alert-{{ category }}">
+						{{ message }}
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		{% block content %}
+				<h4>Fuentes de obtención de los datos</h4>
+				<p><strong>Datos mundiales:</strong> John Hopkins University (CSSE): https://github.com/CSSEGISandData/COVID-19/</p>
+				<p><strong>España:</strong> Ministerio de Sanidad: https://www.mscbs.gob.es/profesionales/saludPublica/ccayes/alertasActual/nCov-China/situacionActual.htm</p>
+				<p><strong>Colombia:</strong> Instituto Nacional de Salud: https://www.ins.gov.co/Noticias/Paginas/Coronavirus.aspx</p>
+			</div>
+		{% endblock content %}
+	</div>
+{% endblock %}

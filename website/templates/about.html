@@ -12,16 +12,9 @@
 			{% endif %}
 		{% endwith %}
 		{% block content %}
-			<div>
-				<p>Última acutalización: {{ content['last_update'] }}</p>
-			</div>
-			<div>
-				<object type="text/html" data="{{ url_for('static', filename=figure) }}" style="height: 450px; width: 850px;"></object>
-				<!-- <span>Países con mayor número de casos existentes:</span> -->
-			</div>
 			<div class="content-section" style="white-space: pre-wrap">
 				<span>
-					{{ content['Introduction'] }}
+					{{ content }}
 				</span>
 			</div>
 		{% endblock content %}

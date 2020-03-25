@@ -96,7 +96,6 @@ def test_analysis():
 	end = -1
 	for i in range(nlocations):
 		dfi = dataframe.loc[i]
-		# print(i)
 		start = end + 1
 		end = start - 1 + ndates
 		ds_new.loc[start:end, 'Country/Region'] = dfi['Country/Region']
@@ -108,23 +107,10 @@ def test_analysis():
 		for variable in ['confirmed', 'recovered', 'deaths']:
 			ds_new.loc[start:end, variable] = data[variable].loc[i][previous_keys].tolist()
 
-	# print(ds_new)
-	# Show the time series for China
-	country = 'Mainland China'
-
 	# Show the time series for the whole world
 	ws.dates_keys = list(dates.keys())
 	ws.date_indices = date_indices
 	ws.dates = dates
-	tls.show_world_time_series(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.show_world_death_ratio_I(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.show_country('Spain', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.show_country('Colombia', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.show_cases_per_day(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.show_balance_per_day(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	tls.stackplot(ws.dates_keys[0], ws.dates_keys[-1], ds_new)
-	
-	# More analysis
-	tls.analysis_01(ws.dates_keys[10], ws.dates_keys[-1], ds_new)
-	tls.analysis_02(ws.dates_keys[10], ws.dates_keys[-1], ds_new)
-	tls.analysis_03(ws.dates_keys[10], ws.dates_keys[-1], ds_new)
+
+	# Save the dataframe in the workspace
+	ws.data = ds_new

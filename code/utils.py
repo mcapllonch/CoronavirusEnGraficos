@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Contain useful functions
 """
+import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -24,6 +25,25 @@ import matplotlib.pyplot as plt
 def str2date(s, format_):
 	""" Convert a date from str to datetime.date object """
 	return datetime.strptime(s, format_).date()
+
+def sort_by_date(dates, x):
+	""" Sort a list/array of indices or data by their corresponding dates """
+	dates_ = sorted(dates)
+	print(dates)
+	print('')
+	print(dates_)
+	print('')
+	argsort = np.argsort(dates)
+	print(argsort)
+	print('')
+	dates_ = []
+	x_ = []
+	for i in argsort:
+		dates_.append(dates[i])
+		x_.append(x[i])
+	print(dates_)
+	print('')
+	return dates_, x_
 
 def configure_axes(ax, xlims, xlabel=None, ylabel=None, title=None):
 	""" Do the most common tasks of preparing an axes frame for a figure """

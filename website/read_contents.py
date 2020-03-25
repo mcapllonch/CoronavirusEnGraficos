@@ -36,6 +36,10 @@ def read_folders():
 	for item in folders:
 		ws.folders[item] = os.path.join(cwd, item)
 
+	# Static subfolders: data and images
+	for s in ['data', 'images']:
+		ws.folders['static/%s'%s] = os.path.join(ws.folders['static'], '%s'%s)
+
 	print(ws.folders)
 
 def read_contents():
@@ -50,8 +54,28 @@ def read_contents():
 		if ".txt" in filename:
 			with open(os.path.join(contents_folder, filename), "r") as f:
 				key = f.readline().replace("Key: ", "").replace("\n", "")
-				print('KEY: %s'%key)
+				# print('KEY: %s'%key)
 				content = f.read()
 				ws.contents[key] = content
 
-	print(ws.contents.keys())
+	# print(ws.contents.keys())
+
+def read_static_data():
+	""" Read the data in the static/data folder """
+
+	ws.static_data = {}
+	folder = ws.folders['static/data']
+
+	print('Static data folder contents:', os.listdir(folder))
+	for filename in os.listdir(folder):
+		if ".txt" in filename:
+			with open(os.path.join(folder, filename), "r") as f:
+				key = filename.replace('.txt', '')
+				print('STATIC DATA KEY: %s'%key)
+				content = f.read()
+				ws.static_data[key] = content
+
+	# Update the 'contents' dictionary with these data (so for now, ws.static_data is a bit redundant)
+	ws.contents.update(ws.static_data)
+	print('***')
+	print(ws.contents)

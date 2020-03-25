@@ -43,6 +43,9 @@ read_contents.read_contents()
 # If False, it's for actual use. So False by default
 development = True
 
+# For debuggin purposes, print a separator between build outputs
+if development:
+	print('--------------------------------------------')
 # Construct the app
 
 # Home page
@@ -53,19 +56,31 @@ def home():
 		# Read contents
 		read_contents.read_folders()
 		read_contents.read_contents()
+		read_contents.read_static_data()
 
-	return flask.render_template('home.html', content=ws.contents["Introduction"])
+	return flask.render_template('home.html', content=ws.contents, figure="images/world_graph.html")
 
 # Graphs page
-@app.route('/graphs_page', methods=['GET', 'POST'])
-def graphs_page():
+# @app.route('/graphs_page', methods=['GET', 'POST'])
+# def graphs_page():
+
+# 	if development:
+# 		# Read contents
+# 		read_contents.read_folders()
+# 		read_contents.read_contents()
+
+# 	return flask.render_template('graphs.html', content=ws.contents["graphs"])
+
+# Sources page
+@app.route('/sources_page', methods=['GET', 'POST'])
+def sources_page():
 
 	if development:
 		# Read contents
 		read_contents.read_folders()
 		read_contents.read_contents()
 
-	return flask.render_template('graphs.html', content=ws.contents["graphs"])
+	return flask.render_template('sources.html')
 
 if __name__ == '__main__':
 	app.run(debug=True)

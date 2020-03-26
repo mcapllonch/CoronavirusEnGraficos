@@ -39,8 +39,11 @@ def setup_folders():
 	}
 
 	# Covid and misc data
-	for s in ['covid', 'misc']:
+	# for s in ['covid', 'misc']:
+	for s in ['covid']:
 		ws.folders['data/%s'%s] = os.path.join(ws.folders['data'], '%s'%s)
+	ws.folders['data/misc'] = os.path.join(pardir, 'data_misc')
+
 
 	# Static
 	ws.folders['website/static'] = os.path.join(ws.folders['website'], 'static')

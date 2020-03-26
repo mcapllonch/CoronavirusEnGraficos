@@ -1,7 +1,6 @@
 .env
 certs/
 venv/
-# ./contents/*txt
 **/website/static/images/*
-__pycache__
 **/data/covid/*
+__pycache__

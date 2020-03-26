@@ -18,11 +18,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import json
 import numpy as np
+import pandas as pd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from bokeh.plotting import figure, output_file, show, save
-from bokeh.models import Range1d, NumeralTickFormatter, DatetimeTickFormatter
+from bokeh.models import Slider, HoverTool, Range1d, NumeralTickFormatter, DatetimeTickFormatter, GeoJSONDataSource, LinearColorMapper, LogColorMapper, ColorBar, BasicTicker, LogTicker
+from bokeh.io import show, output_file, curdoc
+from bokeh.palettes import brewer
+from bokeh.layouts import widgetbox, row, column
 
 import workspace as ws
 import utils as utl
@@ -517,22 +522,22 @@ def world_bokeh(start, end, df):
 
 		# Existing cases
 		data['resolved'] = data['recovered'] + data['deaths']
-		data['existing'] = data['confirmed'] - data['resolved']
+		data['active'] = data['confirmed'] - data['resolved']
 
-		variables = variables + ['existing']
+		variables = variables + ['active']
 
 		p = figure(
 				plot_width=800, 
 				plot_height=400, 
 				x_axis_type="datetime", 
-				title="Casos confirmados y existentes en el mundo", 
+				title="Casos confirmados y activos en el mundo", 
 				# x_range=(dates_[0], dates_[-1]), 
 				# y_range=(data['confirmed'].min(), data['confirmed'].max()), 
 			)
 
 		# Add a circle renderer with a size, color and alpha
 		p.circle(dates_, data['confirmed'], size=5, color="navy", alpha=0.5, legend_label='Confirmados')
-		p.circle(dates_, data['existing'], size=5, color="yellow", alpha=0.5, legend_label='Existentes')
+		p.circle(dates_, data['active'], size=5, color="yellow", alpha=0.5, legend_label='Activos')
 
 		# Arrange figure
 		p.xaxis.axis_label = 'Fecha'
@@ -547,3 +552,125 @@ def world_bokeh(start, end, df):
 		# Output to static HTML file
 		output_file(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
 		save(p)
+
+def world_map():
+	""" World map in bokeh figure """
+	"""
+	Interactive map
+	"""
+
+	shapefile = os.path.join(ws.folders['data/misc'], 'countries/ne_110m_admin_0_countries.shp')
+
+	# Read shapefile using Geopandas
+	gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+	print(gdf.head())
+
+	# Rename columns
+	gdf.columns = ['country', 'country_code', 'geometry']
+	print(gdf.head())
+
+	# Drop row corresponding to 'Antarctica'
+	gdf = gdf.drop(gdf.index[159])
+	print(gdf.head())
+
+	# Folder containing daily reports
+	folder = os.path.join(ws.folders['data/covid'], 'csse_covid_19_data/csse_covid_19_daily_reports/')
+
+	# Point to the global dataframe (no provinces)
+	df = ws.data_countries_only
+
+	# Change nans with 0
+	# df.fillna(0, inplace=True)
+
+	# Merge the data frames
+	df_last_date = df[df['date_key'] == ws.dates_keys[-1]][['country_region', 'active']]
+	merged = gdf.merge(df_last_date, left_on='country', right_on='country_region', how='left')
+	# merged.fillna('No data', inplace=True)
+	
+	# Read data to json
+	merged_json = json.loads(merged.to_json())
+
+	# Convert to String like object.
+	json_data = json.dumps(merged_json)
+
+	# Input GeoJSON source that contains features for plotting.
+	geosource = GeoJSONDataSource(geojson=json_data)
+	
+	# Define a sequential multi-hue color palette.
+	palette = brewer['Reds'][8]
+	
+	# Reverse color order so that dark blue is highest obesity.
+	palette = palette[::-1]
+	
+	# Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors. Input nan_color.
+	color_mapper = LinearColorMapper(palette=palette, low=0, high=df_last_date['active'].max())
+	color_mapper_log = LogColorMapper(palette=palette, low=1, high=df_last_date['active'].max())
+	# color_mapper_log = LogColorMapper(palette=palette, low=1, high=1e5+1)
+	# color_mapper = LinearColorMapper(palette = palette, low = 0, high = 40, nan_color = '#d9d9d9')
+	
+	# Define custom tick labels for color bar.
+	tick_labels = dict([('%i'%i, '%i'%i) for i in np.arange(90000)])
+	order = 5
+	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
+	print(tick_labels_log)
+
+	# Add hover tool
+	hover = HoverTool(tooltips=[('País', '@country'), ('Casos', '@active')])
+
+	#Create color bar. 
+	color_bar = ColorBar(
+			color_mapper=color_mapper, 
+			label_standoff=8, 
+			width = 500, 
+			height = 20,
+			border_line_color=None, 
+			location = (0,0), 
+			orientation = 'horizontal', 
+			major_label_overrides = tick_labels
+		)
+	color_bar_log = ColorBar(
+			color_mapper=color_mapper_log, 
+			label_standoff=8, 
+			width = 400, 
+			height = 10,
+			border_line_color=None, 
+			location = (0,0), 
+			orientation = 'horizontal', 
+			ticker=LogTicker(), 
+		)
+
+	# Create figure object.
+	p = figure(
+			title = 'Casos reportados como activos en el mundo, %s'%ws.dates_keys[-1], 
+			plot_height = 500, 
+			plot_width = 800, 
+			toolbar_location = None, 
+			tools = [hover]
+		)
+
+	p.xgrid.grid_line_color = None
+	p.ygrid.grid_line_color = None
+
+	# Add patch renderer to figure. 
+	p.patches(
+			'xs', 
+			'ys', 
+			source = geosource, 
+			# fill_color = {'field' :'active', 'transform' : color_mapper}, 
+			fill_color = {'field' :'active', 'transform' : color_mapper_log}, 
+			line_color = 'black', 
+			line_width = 0.25, 
+			fill_alpha = 1
+		)
+
+	#Specify layout
+	# p.add_layout(color_bar, 'below')
+	p.add_layout(color_bar_log, 'below')
+
+	# Display plot
+	# show(p)
+
+	# Save file
+	print(os.path.join(ws.folders["website/static/images"], "world_map.html"))
+	output_file(os.path.join(ws.folders["website/static/images"], "world_map.html"))
+	save(p)

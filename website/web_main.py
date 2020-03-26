@@ -58,7 +58,12 @@ def home():
 		read_contents.read_contents()
 		read_contents.read_static_data()
 
-	return flask.render_template('home.html', content=ws.contents, figure="images/world_graph.html")
+	return flask.render_template(
+			'home.html', 
+			content=ws.contents, 
+			figure="images/world_graph.html", 
+			world_map="images/world_map.html"
+		)
 
 # Graphs page
 # @app.route('/graphs_page', methods=['GET', 'POST'])

@@ -118,7 +118,7 @@ def read_daily_reports_JHU_CSSE():
 	""" Read daily reports from John Hopkins University's GitHub repo """	
 
 	# Folder where the time series are stored
-	folder = '../data/csse_covid_19_data/csse_covid_19_daily_reports/'
+	folder = os.path.join(ws.folders['data/covid'], 'csse_covid_19_data/csse_covid_19_daily_reports/')
 
 	files = sorted([os.path.join(folder, item) for item in os.listdir(folder) if '.csv' in item])
 
@@ -137,6 +137,7 @@ def read_daily_reports_JHU_CSSE():
 	for dr in files:
 		# Get the date from the file name
 		date_str = dr.split('/')[-1].split('.')[0]
+		# print(date_str, dr)
 		# Name of the variable (confirmed, deaths or recovered)
 		with open(dr, 'r') as f:
 			dataframe = pd.read_csv(dr)
@@ -170,6 +171,25 @@ def read_daily_reports_JHU_CSSE():
 	# Concatenate all the dataframes
 	ds_new = pd.concat(data, ignore_index=True).sort_values(by=['country_region', 'province_state'], ignore_index=True)
 
+	# Clean the data
+
+	# Rename certain countries to avoid duplicity
+	ds_new.replace('Mainland China', 'China', inplace=True)
+	ds_new.replace('US', 'United States of America', inplace=True)
+	ds_new.replace('UK', 'United Kingdom', inplace=True)
+	ds_new.replace('Korea, South', 'South Korea', inplace=True)
+	ds_new.replace('Iran (Islamic Republic of)', 'Iran', inplace=True)
+	ds_new.replace('Hong Kong SAR', 'Hong Kong', inplace=True)
+	ds_new.replace('Macao SAR', 'Macao', inplace=True)
+	ds_new.replace(' Azerbaijan', 'Azerbaijan', inplace=True)
+
+	# Update 'active' column
+	ds_new['closed'] = ds_new['recovered'] + ds_new['deaths']
+	ds_new['active'] = ds_new['confirmed'] - ds_new['closed']
+
+	# New dataframe containing countries only (i.e., excluding provinces)
+	ds_countries = ds_new.groupby(['country_region', 'date', 'date_key']).sum().reset_index()
+
 	# Show the time series for the whole world
 	ws.dates_keys = list(dates.keys())
 	ws.date_indices = date_indices
@@ -177,3 +197,4 @@ def read_daily_reports_JHU_CSSE():
 
 	# Save the dataframe in the workspace
 	ws.data = ds_new
+	ws.data_countries_only = ds_countries

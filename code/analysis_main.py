@@ -37,6 +37,12 @@ def setup_folders():
 		'data': os.path.join(pardir, 'data'), 
 		'website': os.path.join(pardir, 'website')
 	}
+
+	# Covid and misc data
+	for s in ['covid', 'misc']:
+		ws.folders['data/%s'%s] = os.path.join(ws.folders['data'], '%s'%s)
+
+	# Static
 	ws.folders['website/static'] = os.path.join(ws.folders['website'], 'static')
 	# Folders for data and images on the web site
 	for s in ['data', 'images']:
@@ -72,6 +78,7 @@ def make_graphs():
 		tls.show_news('Spain', ['confirmed'], ws.dates_keys[0], ws.dates_keys[-1], ws.data)
 
 	tls.world_bokeh(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
+	tls.world_map()
 
 def num_data_for_website():
 	""" Save numerical data for the web site """

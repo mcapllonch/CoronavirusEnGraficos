@@ -510,10 +510,15 @@ def show_news(country, variables, start, end, df):
 	show_country('Spain', variables, start, end, df, fig=fig, ax=ax)
 	# plt.show()
 
-def world_bokeh(start, end, df):
+def time_series_bokeh(start, end, country=None):
 		""" Show the time series of the world in a HTML graph """
 
 		# Get data
+		df = ws.data
+		if country is not None:
+			df = df[df['country_region'] == country]
+		else:
+			country = 'world'
 		start_index, end_index = get_start_end(start, end)
 		data = {}
 		variables = ['confirmed', 'recovered', 'deaths']
@@ -526,18 +531,28 @@ def world_bokeh(start, end, df):
 
 		variables = variables + ['active']
 
+		# Choose title
+		title = "Casos confirmados y activos en "
+		if country == 'world':
+			addstr = 'el mundo'
+		elif country == 'Spain':
+			addstr = 'España'
+		elif country == 'Colombia':
+			addstr = 'Colombia'
+		title = title + addstr
+
 		p = figure(
 				plot_width=800, 
 				plot_height=400, 
 				x_axis_type="datetime", 
-				title="Casos confirmados y activos en el mundo", 
+				title=title, 
 				# x_range=(dates_[0], dates_[-1]), 
 				# y_range=(data['confirmed'].min(), data['confirmed'].max()), 
 			)
 
 		# Add a circle renderer with a size, color and alpha
 		p.circle(dates_, data['confirmed'], size=5, color="navy", alpha=0.5, legend_label='Confirmados')
-		p.circle(dates_, data['active'], size=5, color="yellow", alpha=0.5, legend_label='Activos')
+		p.circle(dates_, data['active'], size=5, color="orange", alpha=0.5, legend_label='Activos')
 
 		# Arrange figure
 		p.xaxis.axis_label = 'Fecha'
@@ -550,7 +565,7 @@ def world_bokeh(start, end, df):
 		# show(p)
 
 		# Output to static HTML file
-		output_file(os.path.join(ws.folders["website/static/images"], "world_graph.html"))
+		output_file(os.path.join(ws.folders["website/static/images"], "%s_graph.html"%country.lower()))
 		save(p)
 
 def world_map():

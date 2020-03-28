@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="col-md-8">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="alert alert-{{ category }}">
+						{{ message }}
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		{% block content %}
+			<div>
+				<p>Última acutalización: {{ content['last_update'] }}</p>
+			</div>
+			<div>
+				<object type="text/html" data="{{ url_for('static', filename=figure) }}" style="height: 450px; width: 850px;"></object>
+			</div>
+			<div>
+				<h4>Mapa por departamentos (en construcción)</h4>
+				<object type="text/html" data="{{ url_for('static', filename='images/departamentos.html') }}" style="height: 450px; width: 350px;></object>
+			</div>
+		{% endblock content %}
+	</div>
+{% endblock %}

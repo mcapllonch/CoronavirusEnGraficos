@@ -2,5 +2,5 @@
 certs/
 venv/
 **/website/static/images/*
-**/data/covid/*
+covid/
 __pycache__

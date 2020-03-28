@@ -19,6 +19,8 @@ analysis_main.py:
 Just run all the possible analyses
 """
 import os
+import pandas as pd
+from collections import Counter
 
 import datahandler as dh
 import read_time_series as rts
@@ -40,7 +42,7 @@ def setup_folders():
 
 	# Covid and misc data
 	# for s in ['covid', 'misc']:
-	for s in ['covid']:
+	for s in ['covid', 'colombia_specific']:
 		ws.folders['data/%s'%s] = os.path.join(ws.folders['data'], '%s'%s)
 	ws.folders['data/misc'] = os.path.join(pardir, 'data_misc')
 
@@ -64,23 +66,11 @@ def setup_folders():
 
 def make_graphs():
 	""" Make all the necessary graphs for the web site """
-	if False:
-		tls.show_world_time_series(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.show_world_death_ratio_I(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.show_country('Spain', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.show_country('Colombia', ['confirmed', 'recovered', 'deaths'], ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.show_cases_per_day(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.show_balance_per_day(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		tls.stackplot(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-		
-		# More analysis
-		tls.analysis_01(ws.dates_keys[10], ws.dates_keys[-1], ws.data)
-		tls.analysis_02(ws.dates_keys[10], ws.dates_keys[-1], ws.data)
-		tls.analysis_03(ws.dates_keys[10], ws.dates_keys[-1], ws.data)
 
-		tls.show_news('Spain', ['confirmed'], ws.dates_keys[0], ws.dates_keys[-1], ws.data)
-
-	tls.world_bokeh(ws.dates_keys[0], ws.dates_keys[-1], ws.data)
+	df = ws.data
+	tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
+	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
+	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
 	tls.world_map()
 
 def num_data_for_website():
@@ -90,6 +80,20 @@ def num_data_for_website():
 	last_date = list(ws.dates.keys())[-1]
 	with open(os.path.join(ws.folders['website/static/data'], 'last_update.txt'), 'w') as f:
 		f.write(last_date)
+
+def da_colombia_specific():
+	""" Specific data analysis for Colombia """
+
+	# Open Colombia's data
+	df = pd.read_csv(os.path.join(ws.folders['data/colombia_specific'], 'datos_last.csv'))
+
+	# Count cases per province
+	counter = {k: v for k, v in sorted(Counter(df['Departamento']).items(), key=lambda item: item[1], reverse=True)}
+
+	# Create table to show
+	dc = {'Departamento': counter.keys(), 'Confirmados': counter.values()}
+	dfd = pd.DataFrame.from_dict(dc, orient='index').transpose()
+	dfd.to_html(os.path.join(ws.folders['website/static/images'], 'departamentos.html'), index=False)
 
 def run_analysis():
 	""" Run a sample analysis """
@@ -102,6 +106,9 @@ def run_analysis():
 
 	# Save numerical data for the web site
 	num_data_for_website()
+
+	# Process local data for countries
+	da_colombia_specific()
 
 if __name__ == "__main__":
 	setup_folders()

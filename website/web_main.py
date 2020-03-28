@@ -65,6 +65,24 @@ def home():
 			world_map="images/world_map.html"
 		)
 
+@app.route('/spain_specific', methods=['GET', 'POST'])
+def spain_specific():
+
+	return flask.render_template(
+			'spain_specific.html', 
+			content=ws.contents, 
+			figure="images/spain_graph.html", 
+		)
+
+@app.route('/colombia_specific', methods=['GET', 'POST'])
+def colombia_specific():
+
+	return flask.render_template(
+			'colombia_specific.html', 
+			content=ws.contents, 
+			figure="images/colombia_graph.html", 
+		)
+	
 # Graphs page
 # @app.route('/graphs_page', methods=['GET', 'POST'])
 # def graphs_page():

@@ -27,7 +27,7 @@ import workspace as ws
 
 def update_data():
 	# Move to the data directory
-	os.chdir(ws.folders['data'])
+	os.chdir(ws.folders['data/covid'])
 	# Pull data from the repo
 	pullprocess = subprocess.Popen("git pull origin master", shell=True, stdout=subprocess.PIPE)
 	pullprocess.wait()

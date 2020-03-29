@@ -68,10 +68,88 @@ def make_graphs():
 	""" Make all the necessary graphs for the web site """
 
 	df = ws.data
-	tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
-	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
-	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
-	tls.world_map()
+	ws.top_ten = tls.top_n(10)
+	ws.ntop = len(ws.top_ten)
+	if False:
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				x_range=(9e3, 2e5), 
+				y_range=(1e2, 2e5), 
+				variable='active', 
+				use_top_n=True, 
+				log=True
+			)
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				variable='active', 
+				use_top_n=True
+			)
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				x_range=(0, 8e4), 
+				y_range=(0, 6e4), 
+				variable='active', 
+				use_top_n=True
+			)
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				x_range=(9e3, 2e5), 
+				y_range=(1e2, 2e5), 
+				variable='confirmed', 
+				use_top_n=True, 
+				log=True
+			)
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				variable='confirmed', 
+				use_top_n=True
+			)
+		tls.new_vs_active(
+				ws.dates_keys[0], 
+				ws.dates_keys[-1], 
+				x_range=(0, 8e4), 
+				y_range=(0, 6e4), 
+				variable='confirmed', 
+				use_top_n=True
+			)
+	tls.new_vs_active(
+			ws.dates_keys[0], 
+			ws.dates_keys[-1], 
+			x_range=(1e3, 2e5), 
+			y_range=(1e2, 2e5), 
+			variable='active', 
+			use_top_n=True, 
+			log=True
+		)
+	# Time series for the growth
+	# Top ten
+	tls.new_time_series(
+			ws.dates_keys[0], 
+			ws.dates_keys[-1], 
+			variable='new_7_days', 
+			use_top_n=True, 
+		)
+	# In log-scale
+	tls.new_time_series(
+			'15/02/2020', 
+			ws.dates_keys[-1], 
+			y_range=(10, 1e5), 
+			variable='new_7_days', 
+			use_top_n=True, 
+			log=True, 
+		)
+	if False:
+		tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
+		tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
+		tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
+		tls.world_map()
+		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')
+		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Colombia')
 
 def num_data_for_website():
 	""" Save numerical data for the web site """

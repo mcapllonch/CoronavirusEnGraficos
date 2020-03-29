@@ -16,9 +16,17 @@
 				<p>Última acutalización: {{ content['last_update'] }}</p>
 			</div>
 			<div>
-				<object type="text/html" data="{{ url_for('static', filename=figure) }}" style="height: 450px; width: 850px;"></object>
-				<object type="text/html" data="{{ url_for('static', filename=world_map) }}" style="height: 600px; width: 850px;"></object>
-				<!-- <span>Países con mayor número de casos existentes:</span> -->
+				<object type="text/html" data="{{ url_for('static', filename=figures['world_graph']) }}" style="height: 450px; width: 850px;"></object>
+				<object type="text/html" data="{{ url_for('static', filename=figures['world_map']) }}" style="height: 600px; width: 850px;"></object>
+				<h4>Crecimiento</h4>
+				<p>En el siguiente gráfico se puede ver el crecimiento de los casos confirmados para cada fecha en periodos que abarcan los seis días precedentes y la fecha. Se han escogido siete días porque la variación diaria de los casos nuevos es grande. Así, las curvas se suavizan y se obtiene una visión de la tendencia en los últimos siete días.</p>
+				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth']) }}" style="height: 500px; width: 850px;"></object>
+				<p>En el gráfico de abajo, el eje vertical está en escala logarítmica. Esto permite ver ciertos aspectos que son casi imperceptibles en la gráfica anterior. Por ejemplo, la nueva aceleración de casos nuevos en China desde el 18 de marzo.</p>
+				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_log']) }}" style="height: 500px; width: 850px;"></object>
+				<h4>Evolución de la enfermedad: comparación entre casos nuevos en los últimos siete días y casos activos</h4>
+				<p>¿Cómo interpretar este gráfico?</p>
+				<p>El siguiente gráfico muestra la comparación entre casos nuevos en los últimos siete días y los casos activos para los 10 países con mayor número de casos confirmados. De esta manera, este gráfico muestra el ciclo de contagio y recuperación de cada país. En el caso de China, se puede observar cómo después de un aumento contínuo de los contagios, a partir de cerca del 19 de febrero, tanto la velocidad de aparición de casos nuevos como los casos activos fueron disminuyendo. El punto de partida de todos los países es siempre el punto (0, 0), es decir, 0 casos activos y nuevos. Y el objetivo es siempre completar el ciclo y volver a ese punto lo antes posible. Puede observarse que China se ha estado acercando lentamente a ese punto desde el 19 de febrero. Sin embargo, el número de casos nuevos ha vuelto a acelerar desde el 18 de marzo. A pesar de esta nueva aceleración, el número de casos activos ha seguido disminuyendo. Esto se debe a que la suma de recuperaciones y muertes supera a los casos nuevos.</p>
+				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_vs_active_log']) }}" style="height: 500px; width: 850px;"></object>
 			</div>
 			<div class="content-section" style="white-space: pre-wrap">
 				<span>

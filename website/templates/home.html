@@ -13,7 +13,7 @@
 		{% endwith %}
 		{% block content %}
 			<div>
-				<p>Última acutalización: {{ content['last_update'] }}</p>
+				<p>Última actualización: {{ content['last_update'] }}</p>
 			</div>
 			<div>
 				<object type="text/html" data="{{ url_for('static', filename=figures['world_graph']) }}" style="height: 450px; width: 850px;"></object>

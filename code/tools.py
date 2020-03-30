@@ -777,8 +777,6 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 	# Arrange figure
 	p.xaxis.axis_label = 'Casos %s'%trans[variable]
 	p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
-	# p.legend.location = 'top_left'
-	# p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
 	p.xaxis.formatter = NumeralTickFormatter(format="0")
 	p.yaxis.formatter = NumeralTickFormatter(format="0")
 	p.toolbar.logo = None
@@ -801,15 +799,12 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 		hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos %s'%trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
 
 		# Figure
-		# xlim_left = 9e3 if log else 1e3
 		if log:
 			p = figure(
 					plot_width=800, 
 					plot_height=400, 
 					x_axis_type="log", 
 					y_axis_type="log", 
-					# x_range=Range1d(xlim_left, 2e5), 
-					# y_range=Range1d(1e2, 2e5), 
 					title="Casos nuevos vs. casos %s. Ejes en escala logarítmica"%trans[variable], 
 					tools = [hover2], 
 				)
@@ -846,8 +841,6 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 		# Arrange figure
 		p.xaxis.axis_label = 'Casos %s'%trans[variable]
 		p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
-		# p.legend.location = 'top_left'
-		# p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
 		p.xaxis.formatter = NumeralTickFormatter(format="0")
 		p.yaxis.formatter = NumeralTickFormatter(format="0")
 		p.toolbar.logo = None

@@ -138,7 +138,7 @@ def make_graphs():
 	tls.new_time_series(
 			'15/02/2020', 
 			ws.dates_keys[-1], 
-			y_range=(10, 1e5), 
+			y_range=(10, 2e5), 
 			variable='new_7_days', 
 			use_top_n=True, 
 			log=True, 

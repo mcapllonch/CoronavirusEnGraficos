@@ -12,27 +12,75 @@
 			{% endif %}
 		{% endwith %}
 		{% block content %}
+			<div style="white-space: pre-wrap"><p> </p></div>
+			<div class="content-section">
+				<!-- <h4>Sobre esta página</h4> -->
+				<p align="justify">{{ content['Introduction'] }}</p>
+			</div>
+			<div style="white-space: pre-wrap"><p> </p></div>
 			<div>
+				<h4>Estado actual</h4>
 				<p>Última actualización: {{ content['last_update'] }}</p>
 			</div>
 			<div>
 				<object type="text/html" data="{{ url_for('static', filename=figures['world_graph']) }}" style="height: 450px; width: 850px;"></object>
+
 				<object type="text/html" data="{{ url_for('static', filename=figures['world_map']) }}" style="height: 600px; width: 850px;"></object>
+
 				<h4>Crecimiento</h4>
-				<p>En el siguiente gráfico se puede ver el crecimiento de los casos confirmados para cada fecha en periodos que abarcan los seis días precedentes y la fecha. Se han escogido siete días porque la variación diaria de los casos nuevos es grande. Así, las curvas se suavizan y se obtiene una visión de la tendencia en los últimos siete días.</p>
-				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth']) }}" style="height: 500px; width: 850px;"></object>
-				<p>En el gráfico de abajo, el eje vertical está en escala logarítmica. Esto permite ver ciertos aspectos que son casi imperceptibles en la gráfica anterior. Por ejemplo, la nueva aceleración de casos nuevos en China desde el 18 de marzo.</p>
+
+				<p align="justify">En el siguiente gráfico se puede ver el número de casos confirmados nuevos (o contagios reportados) en los últimos siete días de cada fecha.</p>
+
+				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth']) }}" style="height: 450px; width: 850px;"></object>
+
+				<p align="justify"><b>¿Cómo interpretar este gráfico?</b></p>
+
+				<p align="justify">Cada punto de la trayectoria de un país corresponde a un día del calendario. La tendencia de casos nuevos hace que la trayectoria se mueva sobre el eje vertical: si un día muestra el mismo número de casos confirmados nuevos (en los últimos siete días) que el anterior, la trayectoria de la curva se mantendrá en el mismo nivel. A esto podemos llamarlo <b>crecimiento estable</b>. Si este número disminuye o aumenta, descenderá (<b>crecimiento decelerado</b>) o subirá (<b>crecimiento acelerado</b>), respectivamente. Es importante indicar que el crecimiento decelerado no es lo mismo que <b>decrecimiento</b>; sigue siendo crecimiento. El decrecimiento ocurre cuando el crecimiento tiene valores negativos. Los casos confirmados corresponden a una variable acumulativa. Por lo tanto, es imposible tener decrecimiento para esta variable.</p>
+
+				<p align="justify"><b>¿Qué ocurre con los países de este gráfico?</b></p>
+
+				<p align="justify">Este gráfico representa a los 10 países que han tenido un mayor número de casos confirmados de coronavirus.</p>
+
+				<p align="justify"><b>Nota válida a día 29 de marzo: </b>Es interesante notar que todos los países en el gráfico, a excepción de Italia y Suiza, están en crecimiento acelerado hasta día de hoy. Suiza entró en crecimiento decelerado desde día 25 de marzo e Italia lo hizo a partir del 26 de marzo. Las trayectorias de Francia y Alemania muestran una aparente tendencia a aplanarse. Esto no significa que sus crecimientos se estén decelerando. Ambos países siguen en crecimiento acelerado. Lo que ocurre es que su aceleración está disminuyendo.</p>
+
+				<p><b>¿Porqué usar siete días y no los casos reportados de cada día?</b></p>
+
+				<p align="justify">Se han escogido siete días y no uno porque la variación diaria de los casos nuevos es grande y no es representativa de una tendencia real de crecimiento. Como ejemplo hipotético, supongamos que después de reportar 1.000 casos nuevos en un día, un país tiene problemas técnicos en sus pruebas y al día siguiente reporta solo 100 casos. Al día siguiente, los problemas se solucionan y reporta 1.100 casos nuevos. Saber que se han reportado 2.200 casos nuevos en los últimos tres días es más útil que saber que un día se reportaron 1.000, al día siguiente, 100 y al siguiente, 1.100. Usando siete días, las curvas se suavizan y se obtiene una visión más clara de los casos nuevos en el lapso de una semana.</p>
+
+				<p><b>Eje vertical en escala logarítmica</b></p>
+
+				<p align="justify">En el gráfico de abajo, el eje vertical está en escala logarítmica. Esto permite ver ciertos aspectos que son casi imperceptibles en el gráfico anterior. Por ejemplo, la nueva aceleración del crecimiento de casos nuevos en China desde el 18 de marzo.</p>
+
 				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_log']) }}" style="height: 500px; width: 850px;"></object>
+
 				<h4>Evolución de la enfermedad: comparación entre casos nuevos en los últimos siete días y casos activos</h4>
-				<p>¿Cómo interpretar este gráfico?</p>
-				<p>El siguiente gráfico muestra la comparación entre casos nuevos en los últimos siete días y los casos activos para los 10 países con mayor número de casos confirmados. De esta manera, este gráfico muestra el ciclo de contagio y recuperación de cada país. En el caso de China, se puede observar cómo después de un aumento contínuo de los contagios, a partir de cerca del 19 de febrero, tanto la velocidad de aparición de casos nuevos como los casos activos fueron disminuyendo. El punto de partida de todos los países es siempre el punto (0, 0), es decir, 0 casos activos y nuevos. Y el objetivo es siempre completar el ciclo y volver a ese punto lo antes posible. Puede observarse que China se ha estado acercando lentamente a ese punto desde el 19 de febrero. Sin embargo, el número de casos nuevos ha vuelto a acelerar desde el 18 de marzo. A pesar de esta nueva aceleración, el número de casos activos ha seguido disminuyendo. Esto se debe a que la suma de recuperaciones y muertes supera a los casos nuevos.</p>
-				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_vs_active_log']) }}" style="height: 500px; width: 850px;"></object>
+
+				<p align="justify">El siguiente gráfico muestra la comparación entre casos nuevos en los últimos siete días (misma variable que en el gráfico anterior) y los casos activos para los 10 países con mayor número de casos confirmados.</p>
+
+				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_vs_active_log']) }}" style="height: 450px; width: 850px;"></object>
+
+				<p align="justify"><b>¿Cómo interpretar este gráfico?</b></p>
+
+				<p align="justify">Este gráfico muestra el progreso de cada país representado sobre su ciclo de contagio y recuperación. Todos los países empiezan en el punto (0, 0), es decir, teniendo cero casos activos y nuevos. Una vez empieza a haber contagios en un país, su número de casos activos aumenta. En este gráfico, eso significa que el punto rosado correspondiente a ese país avanza hacia la derecha. Además, este punto sube sobre el eje vertical hasta indicar el número de contagios que ha habido en los últimos siete días. Cuando el país se recupera, el número de casos activos empieza a disminuir (el punto rosado viaja hacia la izquierda). Un país totalmente recuperado ha vuelto al punto (0, 0).</p>
+				<p align="justify">Los conceptos de crecimiento estable, acelerado y decelerado de los gráficos anteriores deben ser reinterpretados en este. Esos conceptos se refieren al número de casos confirmados. Sin embargo, en este gráfico se puede estar en crecimiento de casos confirmados y a la vez, tener una reducción del número de casos activos. Esto se debe a que las recuperaciones y las muertes reducen el número de casos activos. Este es el caso de la curva de China.</p>
+
+				<p align="justify"><b>¿Qué ocurre con los países de este gráfico? (nota válida a día 29 de marzo)</b></p>
+
+				<p align="justify">Las trayectorias de todos los países representados aumentan en ambos ejes durante una primera etapa porque tanto el número de casos activos como el número de casos nuevos aumenta contínuamente. Es decir, el ritmo de contagios se acelera.</p>
+
+				<p align="justify"><b>China</b></p>
+
+				<p align="justify">El objetivo de todo país con contagios es siempre completar el ciclo y volver al punto (0, 0) lo antes posible. En el caso de China, puede decirse que se ha estado acercando lentamente a ese punto desde el 19 de febrero: se puede observar cómo después de una primera fase de aumento casi contínuo de los contagios (crecimiento acelerado), a partir de cerca del 19 de febrero, la velocidad de aparición de casos nuevos disminuyó drásticamente y la presencia de casos activos empezó a disminuir (la curva de China "gira" para caer y volver hacia la izquierda). Se nota, sin embargo, que el número de casos nuevos ha vuelto a acelerar desde el 18 de marzo. Aún así, el número de casos activos ha seguido disminuyendo. Esto se debe a que la suma de recuperaciones y muertes supera a los casos nuevos.</p>
+
+				<p align="justify"><b>Italia y Suiza</b></p>
+
+				<p align="justify">El resto de los países representados, a excepción de Italia y Suiza, siguen aumentando tanto sus casos activos como sus números de casos nuevos. Suiza inició un descenso del número de casos nuevos desde el día 25 de marzo e Italia lo hizo desde el 26 de marzo. Eso no significa que el número de casos activos en estos países disminuya (de hecho, sigue aumentando); significa que la velocidad de propagación del virus está disminuyendo.</p>
 			</div>
-			<div class="content-section" style="white-space: pre-wrap">
-				<span>
-					{{ content['Introduction'] }}
-				</span>
-			</div>
+			<div style="white-space: pre-wrap"><p> </p></div>
+			<!-- <div class="content-section">
+				<h4>Sobre esta página</h4>
+				<p align="justify">{{ content['Introduction'] }}</p>
+			</div> -->
 		{% endblock content %}
 	</div>
 {% endblock %}

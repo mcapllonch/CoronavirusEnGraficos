@@ -143,11 +143,11 @@ def make_graphs():
 			use_top_n=True, 
 			log=True, 
 		)
+	tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
+	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
+	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
+	tls.world_map()
 	if False:
-		tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
-		tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
-		tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
-		tls.world_map()
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Colombia')
 

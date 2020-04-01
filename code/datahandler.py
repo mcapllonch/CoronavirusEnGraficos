@@ -61,7 +61,8 @@ def update_colombia_ins():
 	# url = "https://covid19.isciii.es/resources/serie_historica_acumulados.csv"
 	url = "https://e.infogram.com/01266038-4580-4cf0-baab-a532bd968d0c?parent_url=https%3A%2F%2Fwww.ins.gov.co%2FNoticias%2FPaginas%2FCoronavirus.aspx&src=embed#"
 	r = requests.get(url)
-	soup = bs4.BeautifulSoup(r.content, 'html5lib')
+	# soup = bs4.BeautifulSoup(r.content, 'html5lib')
+	soup = bs4.BeautifulSoup(r.content, 'html.parser')
 	scripts = soup.findAll('script')
 	p = re.compile(r'window\.infographicData=(.*);')
 	data = json.loads(p.findall(r.text)[0])

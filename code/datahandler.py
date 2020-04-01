@@ -62,15 +62,15 @@ def update_colombia_ins():
 	url = "https://e.infogram.com/01266038-4580-4cf0-baab-a532bd968d0c?parent_url=https%3A%2F%2Fwww.ins.gov.co%2FNoticias%2FPaginas%2FCoronavirus.aspx&src=embed#"
 	r = requests.get(url)
 	# soup = bs4.BeautifulSoup(r.content, 'html5lib')
-	soup = bs4.BeautifulSoup(r.content, 'html.parser')
-	scripts = soup.findAll('script')
+	# soup = bs4.BeautifulSoup(r.content, 'html.parser')
+	# scripts = soup.findAll('script')
 	p = re.compile(r'window\.infographicData=(.*);')
 	data = json.loads(p.findall(r.text)[0])
 	data = data['elements']['content']['content']
 	entities = data['entities']
-	datos = (list(entities.values())[0]['props']['chartData']['data'][0])
-	# String to list
-	datos = list(datos)
+	datos = list(entities.values())[0]['props']['chartData']['data'][0]
+	# # String to list
+	# datos = list(datos)
 
 	# Save to csv
 	now = datetime.now()

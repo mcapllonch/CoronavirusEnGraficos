@@ -164,7 +164,7 @@ def da_colombia_specific():
 	""" Specific data analysis for Colombia """
 
 	# Open Colombia's data
-	df = pd.read_csv(os.path.join(ws.folders['data/colombia_specific'], 'datos_last.csv'))
+	df = pd.read_csv(os.path.join(ws.folders['data/colombia_specific'], 'data_last.csv'))
 
 	# Count cases per province
 	counter = {k: v for k, v in sorted(Counter(df['Departamento']).items(), key=lambda item: item[1], reverse=True)}

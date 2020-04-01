@@ -1,0 +1,101 @@
+2020-03-31 10:54:10.670094
+From https://github.com/CSSEGISandData/COVID-19
+ * branch              master     -> FETCH_HEAD
+pullprocess.returncode: 0
+Index(['United States of America', 'Italy', 'Spain', 'China', 'Germany',
+       'France', 'Iran', 'United Kingdom', 'Switzerland', 'Belgium'],
+      dtype='object', name='country_region')
+{'confirmed': [161807.0], 'active': [153185.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [118140.0], 'new': [20921.0], 'country': ['United States of America']}
+{'confirmed': [101739.0], 'active': [75528.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37812.0], 'new': [4050.0], 'country': ['Italy']}
+{'confirmed': [87956.0], 'active': [63460.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [52820.0], 'new': [7846.0], 'country': ['Spain']}
+{'confirmed': [82198.0], 'active': [2967.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [702.0], 'new': [76.0], 'country': ['China']}
+{'confirmed': [66885.0], 'active': [52740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37829.0], 'new': [4790.0], 'country': ['Germany']}
+{'confirmed': [45170.0], 'active': [34176.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [25047.0], 'new': [4462.0], 'country': ['France']}
+{'confirmed': [41495.0], 'active': [24827.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [18446.0], 'new': [3186.0], 'country': ['Iran']}
+{'confirmed': [22453.0], 'active': [20871.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [15727.0], 'new': [2673.0], 'country': ['United Kingdom']}
+{'confirmed': [15922.0], 'active': [13740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [7127.0], 'new': [1093.0], 'country': ['Switzerland']}
+{'confirmed': [11899.0], 'active': [9859.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [8156.0], 'new': [1063.0], 'country': ['Belgium']}
+                         ADMIN  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+                       country  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+                       country  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+{'1': '1', '10': '10', '100': '100', '1000': '1000', '10000': '10000', '100000': '100000'}
+2020-03-31 10:54:30.243827
+From https://github.com/CSSEGISandData/COVID-19
+ * branch              master     -> FETCH_HEAD
+pullprocess.returncode: 0
+Index(['United States of America', 'Italy', 'Spain', 'China', 'Germany',
+       'France', 'Iran', 'United Kingdom', 'Switzerland', 'Belgium'],
+      dtype='object', name='country_region')
+{'confirmed': [161807.0], 'active': [153185.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [118140.0], 'new': [20921.0], 'country': ['United States of America']}
+{'confirmed': [101739.0], 'active': [75528.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37812.0], 'new': [4050.0], 'country': ['Italy']}
+{'confirmed': [87956.0], 'active': [63460.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [52820.0], 'new': [7846.0], 'country': ['Spain']}
+{'confirmed': [82198.0], 'active': [2967.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [702.0], 'new': [76.0], 'country': ['China']}
+{'confirmed': [66885.0], 'active': [52740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37829.0], 'new': [4790.0], 'country': ['Germany']}
+{'confirmed': [45170.0], 'active': [34176.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [25047.0], 'new': [4462.0], 'country': ['France']}
+{'confirmed': [41495.0], 'active': [24827.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [18446.0], 'new': [3186.0], 'country': ['Iran']}
+{'confirmed': [22453.0], 'active': [20871.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [15727.0], 'new': [2673.0], 'country': ['United Kingdom']}
+{'confirmed': [15922.0], 'active': [13740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [7127.0], 'new': [1093.0], 'country': ['Switzerland']}
+{'confirmed': [11899.0], 'active': [9859.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [8156.0], 'new': [1063.0], 'country': ['Belgium']}
+                         ADMIN  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+                       country  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+                       country  ...                                           geometry
+0                         Fiji  ...  MULTIPOLYGON (((180.00000 -16.06713, 180.00000...
+1  United Republic of Tanzania  ...  POLYGON ((33.90371 -0.95000, 34.07262 -1.05982...
+2               Western Sahara  ...  POLYGON ((-8.66559 27.65643, -8.66512 27.58948...
+3                       Canada  ...  MULTIPOLYGON (((-122.84000 49.00000, -122.9742...
+4     United States of America  ...  MULTIPOLYGON (((-122.84000 49.00000, -120.0000...
+
+[5 rows x 3 columns]
+{'1': '1', '10': '10', '100': '100', '1000': '1000', '10000': '10000', '100000': '100000'}
+2020-03-31 10:54:54.333862
+From https://github.com/CSSEGISandData/COVID-19
+ * branch              master     -> FETCH_HEAD
+pullprocess.returncode: 0
+Index(['United States of America', 'Italy', 'Spain', 'China', 'Germany',
+       'France', 'Iran', 'United Kingdom', 'Switzerland', 'Belgium'],
+      dtype='object', name='country_region')
+{'confirmed': [161807.0], 'active': [153185.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [118140.0], 'new': [20921.0], 'country': ['United States of America']}
+{'confirmed': [101739.0], 'active': [75528.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37812.0], 'new': [4050.0], 'country': ['Italy']}
+{'confirmed': [87956.0], 'active': [63460.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [52820.0], 'new': [7846.0], 'country': ['Spain']}
+{'confirmed': [82198.0], 'active': [2967.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [702.0], 'new': [76.0], 'country': ['China']}
+{'confirmed': [66885.0], 'active': [52740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [37829.0], 'new': [4790.0], 'country': ['Germany']}
+{'confirmed': [45170.0], 'active': [34176.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [25047.0], 'new': [4462.0], 'country': ['France']}
+{'confirmed': [41495.0], 'active': [24827.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [18446.0], 'new': [3186.0], 'country': ['Iran']}
+{'confirmed': [22453.0], 'active': [20871.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [15727.0], 'new': [2673.0], 'country': ['United Kingdom']}
+{'confirmed': [15922.0], 'active': [13740.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [7127.0], 'new': [1093.0], 'country': ['Switzerland']}
+{'confirmed': [11899.0], 'active': [9859.0], 'date': ['30/03/2020'], 'date_obj': [datetime.date(2020, 3, 30)], 'new_7_days': [8156.0], 'new': [1063.0], 'country': ['Belgium']}

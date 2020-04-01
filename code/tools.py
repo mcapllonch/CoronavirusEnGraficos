@@ -27,7 +27,7 @@ import matplotlib.dates as mdates
 from bokeh.plotting import figure, save
 from bokeh.models import Slider, HoverTool, Range1d, NumeralTickFormatter, DatetimeTickFormatter, GeoJSONDataSource, LinearColorMapper, LogColorMapper, ColorBar, BasicTicker, LogTicker
 from bokeh.io import show, output_file, curdoc
-from bokeh.palettes import brewer, Spectral11
+from bokeh.palettes import brewer, Spectral11, Category20
 from bokeh.layouts import widgetbox, row, column
 
 import workspace as ws
@@ -502,7 +502,7 @@ def show_news(country, variables, start, end, df):
 		j += 1
 
 		n = news[i]
-		print(i, n["date"], n["title"])
+		# print(i, n["date"], n["title"])
 		# ax.text(ws.dates[n["date"]], 1, j)
 		ax.text(dates[j - 1], 1, j)
 		ax.axvline(x=ws.dates[n["date"]], c='k', label="%i: %s"%(j, n["title"]))
@@ -567,6 +567,91 @@ def time_series_bokeh(start, end, country='world'):
 		# show(p)
 		save(p)
 
+def compare_countries(start, end, variable='confirmed', countries=None, label='', title_add=''):
+		""" Show the time series of the world in a HTML graph """
+			
+		# Get data
+		df = ws.data_countries_only
+		# Date range
+		start_index, end_index = get_start_end(start, end)
+
+		# Translation keys for the variables
+		trans = {
+			'active': 'activos', 
+			'confirmed': 'confirmados', 
+		}
+		# Choose title
+		title = "Casos %s%s"%(trans[variable], title_add)
+
+		# Hover tool indicating the country
+		hover = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date_key'), ('Casos %s'%trans[variable], '@%s'%variable)])
+
+		# Figure
+		p = figure(
+				plot_width=800, 
+				plot_height=400, 
+				x_axis_type="datetime", 
+				title=title, 
+				tools=[hover], 
+			)
+
+		if countries is None:
+			countries = []
+
+		# Choose graph options depending on the number of countries
+		ncountries = len(countries)
+		# category20 = list(Category20.values())
+		category20 = Category20[20]
+		many_countries = ncountries > len(category20)
+
+		alpha = 1.
+		legend = True
+		add_text = False
+		if many_countries:
+			colors = ncountries * ['black']
+			alpha = 0.2
+			legend = False
+			add_text = True
+		elif ncountries > len(Spectral11):
+			colors = category20[:]
+		else:
+			colors = Spectral11[:]
+
+		# Iterate over countries
+		for i, country in enumerate(countries):
+
+			# Get data for the country
+			df_ = df[df['country_region'] == country]
+			data = {}
+			data['date_obj'], data[variable] = get_single_time_series(df_, variable, start_index, end_index)
+			# data['date_key'] = [x.strftime("%d/%m/%Y") for x in data['date_obj']]
+			data['date_key'] = ws.dates_keys[start_index:end_index + 1]
+			data['country'] = len(data[variable]) * [country]
+
+			# Plot data
+			if not many_countries:
+				p.circle('date_obj', variable, source=data, color=colors[i], size=5, alpha=alpha, legend_label=country)
+				p.line('date_obj', variable, source=data, color=colors[i], line_width=2, alpha=alpha, legend_label=country)
+			else:
+				p.circle('date_obj', variable, source=data, color=colors[i], size=5, alpha=alpha)
+				p.line('date_obj', variable, source=data, color=colors[i], line_width=2, alpha=alpha)
+				# p.text(x=data['date_obj'], y=data[variable], text=[country],text_baseline="middle", text_align="left")
+				p.text(x=data['date_obj'][-1], y=data[variable][-1], text=[country])
+
+		# Arrange figure
+		p.xaxis.axis_label = 'Fecha'
+		p.yaxis.axis_label = 'Número de casos'
+		if legend:
+			p.legend.location = 'top_left'
+		p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
+		p.yaxis.formatter = NumeralTickFormatter(format="0")
+		p.toolbar.logo = None
+
+		# Output to static HTML file
+		output_file(os.path.join(ws.folders["website/static/images"], "%s_%s_time_series.html"%(label, variable)))
+		# show(p)
+		save(p)
+
 def world_map():
 	""" World map in bokeh figure """
 	"""
@@ -577,15 +662,15 @@ def world_map():
 
 	# Read shapefile using Geopandas
 	gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
-	print(gdf.head())
+	# print(gdf.head())
 
 	# Rename columns
 	gdf.columns = ['country', 'country_code', 'geometry']
-	print(gdf.head())
+	# print(gdf.head())
 
 	# Drop row corresponding to 'Antarctica'
 	gdf = gdf.drop(gdf.index[159])
-	print(gdf.head())
+	# print(gdf.head())
 
 	# Folder containing daily reports
 	folder = os.path.join(ws.folders['data/covid'], 'csse_covid_19_data/csse_covid_19_daily_reports/')
@@ -626,7 +711,7 @@ def world_map():
 	tick_labels = dict([('%i'%i, '%i'%i) for i in np.arange(90000)])
 	order = 5
 	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
-	print(tick_labels_log)
+	# print(tick_labels_log)
 
 	# Add hover tool
 	hover = HoverTool(tooltips=[('País', '@country'), ('Casos', '@active')])
@@ -670,7 +755,6 @@ def world_map():
 			'xs', 
 			'ys', 
 			source = geosource, 
-			# fill_color = {'field' :'active', 'transform' : color_mapper}, 
 			fill_color = {'field' :'active', 'transform' : color_mapper_log}, 
 			line_color = 'black', 
 			line_width = 0.25, 
@@ -678,7 +762,6 @@ def world_map():
 		)
 
 	#Specify layout
-	# p.add_layout(color_bar, 'below')
 	p.add_layout(color_bar_log, 'below')
 
 	# Display plot
@@ -834,7 +917,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 			# Last circle indicating the country
 			data_last = {k: [v[-1]] for k, v in data.items()}
 			data_last['country'] = [country]
-			print(data_last)
+			# print(data_last)
 			p.circle(variable, 'new_7_days', source=data_last, size=10, color="magenta", alpha=1.)
 			p.text(x=data_last[variable], y=data_last['new_7_days'], text=[country],text_baseline="middle", text_align="left")
 
@@ -863,7 +946,6 @@ def top_n(n=10):
 	df = ws.data_countries_only
 
 	top_n = df.sort_values(by='confirmed', ignore_index=True, ascending=False).groupby(['country_region'], sort=False)['confirmed'].max().index[:n]
-	print(top_n)
 	return top_n
 
 def new_time_series(start, end, y_range=None, country='world', variable='new', use_top_n=False, log=False):

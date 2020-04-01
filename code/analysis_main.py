@@ -42,7 +42,7 @@ def setup_folders():
 
 	# Covid and misc data
 	# for s in ['covid', 'misc']:
-	for s in ['covid', 'colombia_specific']:
+	for s in ['covid', 'colombia_specific', 'spain_specific']:
 		ws.folders['data/%s'%s] = os.path.join(ws.folders['data'], '%s'%s)
 	ws.folders['data/misc'] = os.path.join(pardir, 'data_misc')
 
@@ -70,53 +70,8 @@ def make_graphs():
 	df = ws.data
 	ws.top_ten = tls.top_n(10)
 	ws.ntop = len(ws.top_ten)
-	if False:
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				x_range=(9e3, 2e5), 
-				y_range=(1e2, 2e5), 
-				variable='active', 
-				use_top_n=True, 
-				log=True
-			)
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				variable='active', 
-				use_top_n=True
-			)
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				x_range=(0, 8e4), 
-				y_range=(0, 6e4), 
-				variable='active', 
-				use_top_n=True
-			)
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				x_range=(9e3, 2e5), 
-				y_range=(1e2, 2e5), 
-				variable='confirmed', 
-				use_top_n=True, 
-				log=True
-			)
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				variable='confirmed', 
-				use_top_n=True
-			)
-		tls.new_vs_active(
-				ws.dates_keys[0], 
-				ws.dates_keys[-1], 
-				x_range=(0, 8e4), 
-				y_range=(0, 6e4), 
-				variable='confirmed', 
-				use_top_n=True
-			)
+	
+	# New vs. active
 	tls.new_vs_active(
 			ws.dates_keys[0], 
 			ws.dates_keys[-1], 
@@ -143,9 +98,55 @@ def make_graphs():
 			use_top_n=True, 
 			log=True, 
 		)
+	# Time series for the world
 	tls.time_series_bokeh(ws.dates_keys[0], ws.dates_keys[-1])
+	# Time series for Spain and Colombia
 	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Spain')
 	tls.time_series_bokeh('01/03/2020', ws.dates_keys[-1], country='Colombia')
+	# Time series for Latin America
+	ws.south_american_countries = sorted([
+				'Argentina', 
+				'Brazil', 
+				'Bolivia', 
+				'Chile', 
+				'Colombia',
+				'Venezuela', 
+				'Guyana', 
+				'French Guiana', 
+				'Suriname', 
+				'Ecuador' ,
+				'Peru', 
+				'Paraguay', 
+				'Uruguay', 
+			])
+	ws.latin_american_countries = sorted(ws.south_american_countries + [
+				'Costa Rica' 
+				'Cuba', 
+				'Haiti', 
+				'Nicaragua', 
+				'Dominican Republic', 
+				'Mexico',
+				'Guatemala', 
+				'Honduras',
+				'El Salvador', 
+				'Panama', 
+			])
+	tls.compare_countries(
+			'12/03/2020', 
+			ws.dates_keys[-1], 
+			variable='confirmed', 
+			countries=ws.latin_american_countries, 
+			label='paises_latinoamericanos', 
+			title_add=' en los países latinoamericanos', 
+		)
+	tls.compare_countries(
+			'12/03/2020', 
+			ws.dates_keys[-1], 
+			variable='confirmed', 
+			countries=ws.south_american_countries, 
+			label='paises_suramericanos', 
+			title_add=' en los países de Sur América', 
+		)
 	tls.world_map()
 	if False:
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')

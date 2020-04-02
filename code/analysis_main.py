@@ -147,6 +147,22 @@ def make_graphs():
 			label='paises_suramericanos', 
 			title_add=' en los países de Sur América', 
 		)
+	# Custom countries
+	custom_countries = [
+			'Colombia', 
+			'Spain', 
+			'Italy', 
+			'Ecuador', 
+			'South Korea', 
+			'Brazil', 
+		]
+	tls.compare_countries(
+			'12/03/2020', 
+			ws.dates_keys[-1], 
+			variable='confirmed', 
+			countries=custom_countries, 
+			label='paises_hc', 
+		)
 	tls.world_map()
 	if False:
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')

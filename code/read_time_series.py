@@ -178,6 +178,7 @@ def read_daily_reports_JHU_CSSE():
 	ds_new.replace('US', 'United States of America', inplace=True)
 	ds_new.replace('UK', 'United Kingdom', inplace=True)
 	ds_new.replace('Korea, South', 'South Korea', inplace=True)
+	ds_new.replace('Republic of Korea', 'South Korea', inplace=True)
 	ds_new.replace('Iran (Islamic Republic of)', 'Iran', inplace=True)
 	ds_new.replace('Hong Kong SAR', 'Hong Kong', inplace=True)
 	ds_new.replace('Macao SAR', 'Macao', inplace=True)

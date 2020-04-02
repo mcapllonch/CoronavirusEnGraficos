@@ -75,7 +75,7 @@ def make_graphs():
 	tls.new_vs_active(
 			ws.dates_keys[0], 
 			ws.dates_keys[-1], 
-			x_range=(1e3, 2e5), 
+			x_range=(1e3, 3e5), 
 			y_range=(1e2, 2e5), 
 			variable='active', 
 			use_top_n=True, 

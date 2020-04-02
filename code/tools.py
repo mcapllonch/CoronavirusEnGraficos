@@ -696,20 +696,21 @@ def world_map():
 	geosource = GeoJSONDataSource(geojson=json_data)
 	
 	# Define a sequential multi-hue color palette.
-	palette = brewer['Reds'][8]
+	order = int(np.log10(df_last_date['active'].max()))
+	palette = brewer['Reds'][order + 1]
 	
 	# Reverse color order so that dark blue is highest obesity.
 	palette = palette[::-1]
 	
 	# Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors. Input nan_color.
 	color_mapper = LinearColorMapper(palette=palette, low=0, high=df_last_date['active'].max())
-	color_mapper_log = LogColorMapper(palette=palette, low=1, high=df_last_date['active'].max())
+	# color_mapper_log = LogColorMapper(palette=palette, low=1, high=df_last_date['active'].max())
+	color_mapper_log = LogColorMapper(palette=palette, low=1, high=10**(order+1))
 	# color_mapper_log = LogColorMapper(palette=palette, low=1, high=1e5+1)
 	# color_mapper = LinearColorMapper(palette = palette, low = 0, high = 40, nan_color = '#d9d9d9')
 	
 	# Define custom tick labels for color bar.
 	tick_labels = dict([('%i'%i, '%i'%i) for i in np.arange(90000)])
-	order = 5
 	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
 	# print(tick_labels_log)
 
@@ -730,7 +731,7 @@ def world_map():
 	color_bar_log = ColorBar(
 			color_mapper=color_mapper_log, 
 			label_standoff=8, 
-			width = 400, 
+			width = 500, 
 			height = 10,
 			border_line_color=None, 
 			location = (0,0), 

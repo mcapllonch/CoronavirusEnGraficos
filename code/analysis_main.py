@@ -19,6 +19,8 @@ analysis_main.py:
 Just run all the possible analyses
 """
 import os
+import sys
+import numpy as np
 import pandas as pd
 from collections import Counter
 
@@ -26,6 +28,7 @@ import datahandler as dh
 import read_time_series as rts
 import workspace as ws
 import tools as tls
+import tools_testing as tt
 import utils as utl
 
 
@@ -63,13 +66,46 @@ def setup_folders():
 		'existing': 'orange', 
 	}
 
+	# Set up the specific datasets for each country
+	ws.data_specific = {}
+
 
 def make_graphs():
 	""" Make all the necessary graphs for the web site """
 
 	df = ws.data
-	ws.top_ten = tls.top_n(10)
+	ws.top_ten = tls.top_n(10).tolist()
 	ws.ntop = len(ws.top_ten)
+
+	# Map for Colombia
+	tt.colombia_map()
+	# sys.exit()
+
+	# Time series starting from 'Day 100' for several countries
+	if False:
+		# Custom countries
+		custom_countries = [
+				'Colombia', 
+				'Spain', 
+				'Italy', 
+				'Ecuador', 
+				'South Korea', 
+				'Brazil', 
+			]
+		tls.countries_dayn(100, custom_countries)
+	else:
+		# Custom countries #2
+		custom_countries = [
+				'Colombia', 
+				'Peru', 
+				'Argentina', 
+				'Ecuador', 
+				'Chile', 
+			]
+		tls.countries_dayn(100, custom_countries)
+	# print(ws.top_ten, ws.top_ten + ['Colombia'])
+	# tls.countries_dayn(100, ws.top_ten + ['Colombia'])
+	# sys.exit()
 	
 	# New vs. active
 	tls.new_vs_active(
@@ -147,22 +183,7 @@ def make_graphs():
 			label='paises_suramericanos', 
 			title_add=' en los países de Sur América', 
 		)
-	# Custom countries
-	custom_countries = [
-			'Colombia', 
-			'Spain', 
-			'Italy', 
-			'Ecuador', 
-			'South Korea', 
-			'Brazil', 
-		]
-	tls.compare_countries(
-			'12/03/2020', 
-			ws.dates_keys[-1], 
-			variable='confirmed', 
-			countries=custom_countries, 
-			label='paises_hc', 
-		)
+	# World map
 	tls.world_map()
 	if False:
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')
@@ -181,14 +202,36 @@ def da_colombia_specific():
 
 	# Open Colombia's data
 	df = pd.read_csv(os.path.join(ws.folders['data/colombia_specific'], 'data_last.csv'))
+	print(df.columns)
+	for dep in set(df['Departamento o Distrito']):
+		print(dep)
+
+	# Do some processing on the data
+
+	# Lower case everything
+	df.columns = [c.lower().replace(' ', '_') for c in df.columns]
+	# Rename some columns
+	df.rename(columns={'departamento_o_distrito': 'departamento'}, inplace=True)
+	# columns = df.columns
+	columns = df.select_dtypes(include=[np.object]).columns
+	df[columns] = df[columns].apply(lambda x: x.str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
+	df['departamento'] = df['departamento'].str.lower()
+
+	print(df.head())
 
 	# Count cases per province
-	counter = {k: v for k, v in sorted(Counter(df['Departamento']).items(), key=lambda item: item[1], reverse=True)}
+	counter = {k: v for k, v in sorted(Counter(df['departamento']).items(), key=lambda item: item[1], reverse=True)}
 
 	# Create table to show
-	dc = {'Departamento': counter.keys(), 'Confirmados': counter.values()}
+	dc = {'departamento': counter.keys(), 'confirmed': counter.values()}
 	dfd = pd.DataFrame.from_dict(dc, orient='index').transpose()
 	dfd.to_html(os.path.join(ws.folders['website/static/images'], 'departamentos.html'), index=False)
+
+	# Save it to the work space
+	ws.data_specific['Colombia'] = dfd
+	print('')
+	print(dfd)
+	print('')
 
 def run_analysis():
 	""" Run a sample analysis """
@@ -196,14 +239,14 @@ def run_analysis():
 	# Analyze it and generate products
 	rts.read_daily_reports_JHU_CSSE()
 
-	# Make graphs
-	make_graphs()
-
 	# Save numerical data for the web site
 	num_data_for_website()
 
 	# Process local data for countries
 	da_colombia_specific()
+
+	# Make graphs
+	make_graphs()
 
 if __name__ == "__main__":
 	setup_folders()

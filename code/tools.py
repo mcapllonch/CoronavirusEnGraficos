@@ -21,6 +21,8 @@ import itertools
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 from bokeh.plotting import figure, save
 from bokeh.models import Slider, HoverTool, Range1d, NumeralTickFormatter, DatetimeTickFormatter, GeoJSONDataSource, LinearColorMapper, LogColorMapper, ColorBar, BasicTicker, LogTicker
@@ -31,6 +33,8 @@ from bokeh.layouts import widgetbox, row, column
 import workspace as ws
 import utils as utl
 
+
+plt.style.use('format001.mplstyle')
 
 
 def cases_per_day(x):
@@ -48,7 +52,7 @@ def get_country_date(country, date):
 	data = {}
 	
 	for variable in ['confirmed', 'recovered', 'deaths']:
-		data[variable] = df[df['Country/Region'] == country][df['Date'] == date][variable].sum()
+		data[variable] = df[df['country_region'] == country][df['Date'] == date][variable].sum()
 	return data
 
 def get_single_time_series(df, variable, start_index, end_index):
@@ -206,9 +210,8 @@ def compare_countries(start, end, variable='confirmed', countries=None, label=''
 		save(p)
 
 def world_map():
-	""" World map in bokeh figure """
 	"""
-	Interactive map
+	Interactive world map in bokeh figure
 	"""
 
 	shapefile = os.path.join(ws.folders['data/misc'], 'countries/ne_110m_admin_0_countries.shp')
@@ -238,15 +241,24 @@ def world_map():
 	df_last_date = df[df['date_key'] == ws.dates_keys[-1]][['country_region', 'active']]
 	merged = gdf.merge(df_last_date, left_on='country', right_on='country_region', how='left')
 	# merged.fillna('No data', inplace=True)
+
+	print('')
+	print(merged)
 	
 	# Read data to json
 	merged_json = json.loads(merged.to_json())
 
 	# Convert to String like object.
 	json_data = json.dumps(merged_json)
+	# print('')
+	# print('merged_json:')
+	# print(merged_json['features'].__dict__.keys())
 
 	# Input GeoJSON source that contains features for plotting.
 	geosource = GeoJSONDataSource(geojson=json_data)
+
+	# print('')
+	# print(geosource)
 	
 	# Define a sequential multi-hue color palette.
 	order = int(np.log10(df_last_date['active'].max()))
@@ -333,12 +345,24 @@ def get_new_7_days(start_index, end_index, variable, country='world'):
 		if country != 'world':
 			df = df[df['country_region'] == country]
 
-		# Data to plot
+		# Target size for the arrays to return
+		target_size = end_index - start_index + 1
+
+		# Data to return
 		data = {}
 
 		# Get confirmed and active cases
+		# The time series need to span the whole time (or, at least, 7 days before start_index)
+		ndays = 7
+		if start_index >= ndays:
+			start_index_ = start_index - (ndays - 1)
+		else:
+			start_index_ = 0
+		# Index shift
+		indshift = start_index - start_index_
+		# Get time series
 		for variable in ['confirmed', 'active']:
-			dates_, data[variable] = get_single_time_series(df, variable, start_index, end_index)
+			dates_, data[variable] = get_single_time_series(df, variable, start_index_, end_index)
 
 		# Format dates to strings
 		data['date'] = []
@@ -356,7 +380,6 @@ def get_new_7_days(start_index, end_index, variable, country='world'):
 		data['new_7_days'] = np.zeros_like(c)
 		new[1:] = c[1:] - c[:-1]
 		data['new'] = new
-		ndays = 7
 
 		new7days = np.zeros_like(new)
 		for i in range(ndays - 1):
@@ -366,6 +389,9 @@ def get_new_7_days(start_index, end_index, variable, country='world'):
 		data['new_7_days'] = new7days
 
 		data['country'] = len(data[variable]) * [country]
+
+		# Now chop the elements in data from indshift
+		data = {k: v[indshift:] for k, v in data.items()}
 
 		return data
 
@@ -631,3 +657,89 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 
 		# show(p)
 		save(p)
+
+def countries_dayn(n, countries):
+	""" Show countries from the day they reached or surpassed n cases """
+
+	# Get data
+	df = ws.data_countries_only
+
+	# Parameters
+	linewidths = {k: 1 for k in countries}
+	linewidths['Colombia'] = 2
+	end = '01/04/2020'
+
+	# Create figures
+	fig1, ax1 = plt.subplots()
+	fig2, ax2 = plt.subplots()
+	fig3, ax3 = plt.subplots()
+
+	# Iterate over countries to plot data
+	for country in countries:
+
+		# Find the day when n cases were reached for each country
+		# First, get the whole time series
+		dates_, x = get_single_time_series(df[df['country_region'] == country], 'confirmed', 0, ws.date_indices['01/04/2020'])
+		# Find where the country reached the n cases
+		date_index = np.where(x >= n)[0][0]
+		start = ws.dates_keys[date_index]
+		start_index, end_index = get_start_end(start, end)
+
+		data = {}
+
+		daysmin = 1e99
+		daysmax = -1e99
+
+		dates_, x = get_single_time_series(df[df['country_region'] == country], 'confirmed', start_index, end_index)
+		data['confirmed'] = x[:]
+
+		# Get new cases in 7 days
+		data_n7d = get_new_7_days(start_index, end_index, 'confirmed', country=country)
+
+		# Days
+		days = np.arange(len(dates_))
+		daysmin = min(days.min(), daysmin)
+		daysmax = max(days.max(), daysmax)
+
+		# CASOS CONFIRMADOS
+		ax1.plot(days, data['confirmed'], 'o-', lw=linewidths[country], label=country)
+
+		# VELOCIDAD
+		c = data['confirmed']
+		velocidad = c[1:] - c[:-1]
+		velocidad = data_n7d['new_7_days'] / 7.
+		# ax2.plot(days[1:], velocidad, 'o-', lw=linewidths[country], label=country)
+		ax2.plot(days, velocidad, 'o-', lw=linewidths[country], label=country)
+
+		# ACELERACIÓN
+		aceleracion = velocidad[1:] - velocidad[:-1]
+		# ax3.plot(days[2:], aceleracion, 'o-', lw=linewidths[country], label=country)
+		ax3.plot(days[1:], aceleracion, 'o-', lw=linewidths[country], label=country)
+
+	# Arrange figures
+	# 1
+	ax1.set_ylim(0, 1100)
+	# ax1.set_yscale('log')
+	utl.configure_axes(ax1, xlims=(daysmin, 14), xlabel='Días después de alcanzar %i casos'%n, ylabel='Casos confirmados')
+	ax1.set_title('Casos confirmados')
+	# 2
+	# ax2.set_ylim(0, 500)
+	ax2.set_ylim(0, 250)
+	# ax2.set_yscale('log')
+	utl.configure_axes(ax2, xlims=(daysmin, 14), xlabel='Días después de alcanzar %i casos'%n, ylabel='Velocidad (casos confirmados nuevos diarios)')
+	utl.configure_axes(ax2, xlims=(daysmin, 14), xlabel='Días después de alcanzar %i casos'%n, ylabel='Velocidad (casos confirmados nuevos diarios;\npromedio de 7 días)')
+	ax2.set_title('Velocidad')
+	# 3
+	# ax3.set_ylim(-10, 100)
+	ax3.set_ylim(-10, 50)
+	# ax3.set_yscale('log')
+	ax3.axhline(y=0, ls='--', c='grey')
+	utl.configure_axes(ax3, xlims=(daysmin, 14), xlabel='Días después de alcanzar %i casos'%n, ylabel='Aceleración (aumento diario de casos confirmados nuevos)')
+	utl.configure_axes(ax3, xlims=(daysmin, 14), xlabel='Días después de alcanzar %i casos'%n, ylabel='Aceleración (aumento diario de casos confirmados nuevos;\npromedio de 7 días)')
+	ax3.set_title('Aceleración')
+
+	# Save figures
+	fig1.savefig(os.path.join(ws.folders['website/static/images'], 'custom_casos_%i_%s_v2.png'%(n, ''.join([c[0] for c in countries]))), bbox_inches='tight', dpi=300)
+	fig2.savefig(os.path.join(ws.folders['website/static/images'], 'custom_velocidad_%i_%s_v4.png'%(n, ''.join([c[0] for c in countries]))), bbox_inches='tight', dpi=300)
+	fig3.savefig(os.path.join(ws.folders['website/static/images'], 'custom_aceleracion_%i_%s_v2.png'%(n, ''.join([c[0] for c in countries]))), bbox_inches='tight', dpi=300)
+	# plt.show()

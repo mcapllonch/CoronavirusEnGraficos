@@ -47,7 +47,7 @@ def sort_by_date(dates, x):
 
 def configure_axes(ax, xlims, xlabel=None, ylabel=None, title=None):
 	""" Do the most common tasks of preparing an axes frame for a figure """
-	plt.xticks(rotation=45)
+	# plt.xticks(rotation=45)
 	ax.set_xlabel(xlabel)
 	ax.set_ylabel(ylabel)
 	ax.legend()

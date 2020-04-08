@@ -202,32 +202,61 @@ def da_colombia_specific():
 
 	# Open Colombia's data
 	df = pd.read_csv(os.path.join(ws.folders['data/colombia_specific'], 'data_last.csv'))
-	print(df.columns)
-	for dep in set(df['Departamento o Distrito']):
-		print(dep)
+
+	# Now open the data 'translator'
+	dt = pd.read_csv(os.path.join(ws.folders['data/misc'], 'departamentos_colombia/data_and_map_translator.csv'))
 
 	# Do some processing on the data
 
-	# Lower case everything
+	# Lower case columns
 	df.columns = [c.lower().replace(' ', '_') for c in df.columns]
+	dt.columns = [c.lower().replace(' ', '_') for c in dt.columns]
+
 	# Rename some columns
 	df.rename(columns={'departamento_o_distrito': 'departamento'}, inplace=True)
-	# columns = df.columns
-	columns = df.select_dtypes(include=[np.object]).columns
-	df[columns] = df[columns].apply(lambda x: x.str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-	df['departamento'] = df['departamento'].str.lower()
 
-	print(df.head())
+	# Make columns with lowered and 'normalized' values
+	df['departamento_normalized'] = df['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
+	dt['departamento_normalized'] = dt['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
+	dt['capitales_normalized'] = dt['capitales'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
+
+	# Some provinces in df carry the names of their capital cities, so this needs to be sorted out
+	dt_short = dt[~dt['capitales'].isnull()]
+	capitales = {k: {'norm': a, 'departamento': b[:-1]} if b[-1] == ' ' else b for k, a, b in zip(dt_short['capitales'], dt_short['capitales_normalized'], dt_short['departamento'])}
+	for c, d in capitales.items():
+		a = d['norm']
+		b = d['departamento']
+		df.loc[df['departamento_normalized'] == a, 'departamento'] = b
+
+	# Make a column with lowered and 'normalized' values, again, since some province names have been changed
+	df['departamento_normalized'] = df['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
+
+	# Merged the two into df
+	df = df.merge(dt, left_on="departamento_normalized", right_on="departamento_normalized", how="left")
+
+	# Dictionary with province codes and names
+	dep_iso_dic = {k: {'norm': a, 'departamento': b[:-1] if b[-1] == ' ' else b} for k, a, b in zip(dt.iso, dt.departamento_normalized, dt.departamento)}
 
 	# Count cases per province
-	counter = {k: v for k, v in sorted(Counter(df['departamento']).items(), key=lambda item: item[1], reverse=True)}
+	counter = {k: v for k, v in sorted(Counter(df['iso']).items(), key=lambda item: item[1], reverse=True)}
 
 	# Create table to show
-	dc = {'departamento': counter.keys(), 'confirmed': counter.values()}
+	dc = {
+			'cartodb_id': [dt[dt['iso'] == k]['cartodb_id'] for k in counter.keys()], 
+			'iso': counter.keys(), 
+			'departamento': [dep_iso_dic[k]['departamento'] for k in counter.keys()], 
+			'departamento_normalized': [dep_iso_dic[k]['norm'] for k in counter.keys()], 
+			'confirmed': counter.values(), 
+		}
 	dfd = pd.DataFrame.from_dict(dc, orient='index').transpose()
 	dfd.to_html(os.path.join(ws.folders['website/static/images'], 'departamentos.html'), index=False)
 
+	print(df.head())
+
+	print(dt.head())
+
 	# Save it to the work space
+	# ws.data_specific['Colombia'] = dfd
 	ws.data_specific['Colombia'] = dfd
 	print('')
 	print(dfd)

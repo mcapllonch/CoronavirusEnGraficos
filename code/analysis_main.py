@@ -28,7 +28,7 @@ import datahandler as dh
 import read_time_series as rts
 import workspace as ws
 import tools as tls
-import tools_testing as tt
+import maps
 import utils as utl
 
 
@@ -78,8 +78,10 @@ def make_graphs():
 	ws.ntop = len(ws.top_ten)
 
 	# Map for Colombia
-	tt.colombia_map()
-	# sys.exit()
+	maps.colombia_map()
+	# Bar plot
+	tls.horizontal_bar_plot('confirmed', ws.data_specific['Colombia'], country='Colombia')
+	sys.exit()
 
 	# Time series starting from 'Day 100' for several countries
 	if False:
@@ -103,16 +105,13 @@ def make_graphs():
 				'Chile', 
 			]
 		tls.countries_dayn(100, custom_countries)
-	# print(ws.top_ten, ws.top_ten + ['Colombia'])
-	# tls.countries_dayn(100, ws.top_ten + ['Colombia'])
-	# sys.exit()
 	
 	# New vs. active
 	tls.new_vs_active(
 			ws.dates_keys[0], 
 			ws.dates_keys[-1], 
-			x_range=(1e3, 3e5), 
-			y_range=(1e2, 2e5), 
+			x_range=(1e3, 1e6), 
+			y_range=(1e1, 1e5), 
 			variable='active', 
 			use_top_n=True, 
 			log=True
@@ -129,7 +128,7 @@ def make_graphs():
 	tls.new_time_series(
 			'15/02/2020', 
 			ws.dates_keys[-1], 
-			y_range=(10, 2e5), 
+			y_range=(10, 1e5), 
 			variable='new_7_days', 
 			use_top_n=True, 
 			log=True, 
@@ -184,7 +183,7 @@ def make_graphs():
 			title_add=' en los países de Sur América', 
 		)
 	# World map
-	tls.world_map()
+	maps.world_map(variable='active', logscale=True)
 	if False:
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Spain')
 		tls.new_vs_active(ws.dates_keys[0], ws.dates_keys[-1], variable='active', country='Colombia')
@@ -251,16 +250,8 @@ def da_colombia_specific():
 	dfd = pd.DataFrame.from_dict(dc, orient='index').transpose()
 	dfd.to_html(os.path.join(ws.folders['website/static/images'], 'departamentos.html'), index=False)
 
-	print(df.head())
-
-	print(dt.head())
-
 	# Save it to the work space
-	# ws.data_specific['Colombia'] = dfd
 	ws.data_specific['Colombia'] = dfd
-	print('')
-	print(dfd)
-	print('')
 
 def run_analysis():
 	""" Run a sample analysis """

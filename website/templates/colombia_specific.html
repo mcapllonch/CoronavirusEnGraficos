@@ -1,3 +1,19 @@
+<!-- <head>
+	<style type="text/css">
+		.div1 .div2 {
+			display: inline-block;
+			float: left;
+			vertical-align: top;
+		}
+	</style>
+</head> -->
+<head>
+  <title></title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
 {% extends 'layout.html' %}
 
 {% block body %}
@@ -18,10 +34,24 @@
 			<div>
 				<object type="text/html" data="{{ url_for('static', filename=figure) }}" style="height: 450px; width: 850px;"></object>
 			</div>
-			<div>
-				<h4>Mapa por departamentos (en construcción)</h4>
-				<object type="text/html" data="{{ url_for('static', filename='images/departamentos.html') }}" style="height: 450px; width: 350px;"></object>
+			<div class="container" style="width: 1300px; margin: auto;">
+				<h4>Información por departamentos</h4>
+				<div class="row" style="width: 1300px;">
+					<div class="col-sm-4 text-align">
+						<object type="text/html" data="{{ url_for('static', filename='images/colombia_map.html') }}" style="height: 550px; width: 450px;"></object>
+					</div>
+					<div class="col-sm-4 text-align">
+						<object type="text/html" data="{{ url_for('static', filename='images/colombia_hbarplot.html') }}" style="height: 550px; width: 550px;"></object>
+					</div>
+					<!-- <h4>Mapa por departamentos</h4>
+					<object type="text/html" data="{{ url_for('static', filename='images/colombia_map.html') }}" style="height: 550px; width: 450px;"></object> -->
+				</div>
 			</div>
+			<div>
+				<h4>Más información sobre el coronavirus en Colombia:</h4>
+				<p><p><strong>Health Cube: </strong><a href="https://myhealthcube.com/">www.myhealthcube.com</a></p></p>
+			</div>
+
 		{% endblock content %}
 	</div>
 {% endblock %}

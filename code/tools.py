@@ -76,16 +76,22 @@ def time_series_bokeh(start, end, country='world'):
 		data = {}
 		variables = ['confirmed', 'recovered', 'deaths']
 		for variable in variables:
-			dates_, data[variable] = get_single_time_series(df, variable, start_index, end_index)
+			data['dates'], data[variable] = get_single_time_series(df, variable, start_index, end_index)
 
 		# Existing cases
 		data['resolved'] = data['recovered'] + data['deaths']
 		data['active'] = data['confirmed'] - data['resolved']
 
+		# New in 7 days (average)
+
+		data_n7d = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
+		data['new_7_days'] = data_n7d['new_7_days']
+		data['date_keys'] = data_n7d['date']
+
 		variables = variables + ['active']
 
 		# Choose title
-		title = "Casos confirmados y activos en "
+		title = "Casos confirmados, activos y nuevos en "
 		if country == 'world':
 			addstr = 'el mundo'
 		elif country == 'Spain':
@@ -104,8 +110,28 @@ def time_series_bokeh(start, end, country='world'):
 			)
 
 		# Add a circle renderer with a size, color and alpha
-		p.circle(dates_, data['confirmed'], size=5, color="navy", alpha=0.5, legend_label='Confirmados')
-		p.circle(dates_, data['active'], size=5, color="orange", alpha=0.5, legend_label='Activos')
+		colors = {
+			'confirmed': 'navy', 
+			'active': 'orange', 
+			'new_7_days': 'red', 
+		}
+		labels = {
+			'confirmed': 'Confirmados', 
+			'active': 'Activos', 
+			'new_7_days': 'Nuevos (prom. 7 días)', 
+		}
+		plots = {}
+		for v, c in colors.items():
+			plots[v] = p.circle('dates', v, source=data, size=5, color=c, alpha=0.5)
+			p.line('dates', v, source=data, line_width=2, color=c, alpha=0.5, legend_label=labels[v])
+
+		# Hover tools
+		hover1 = HoverTool(renderers=[plots['confirmed']], tooltips=[('Fecha', '@date_keys'), ('Confirmados', '@confirmed')])
+		hover2 = HoverTool(renderers=[plots['active']], tooltips=[('Fecha', '@date_keys'), ('Activos', '@active')])
+		hover3 = HoverTool(renderers=[plots['new_7_days']], tooltips=[('Fecha', '@date_keys'), ('Nuevos (prom. 7 días)', '@new_7_days')])
+		p.add_tools(hover1)
+		p.add_tools(hover2)
+		p.add_tools(hover3)
 
 		# Arrange figure
 		p.xaxis.axis_label = 'Fecha'
@@ -114,7 +140,6 @@ def time_series_bokeh(start, end, country='world'):
 		p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
 		p.yaxis.formatter = NumeralTickFormatter(format="0")
 		p.toolbar.logo = None
-
 
 		# Output to static HTML file
 		output_file(os.path.join(ws.folders["website/static/images"], "%s_graph.html"%country.lower()))
@@ -146,8 +171,9 @@ def compare_countries(start, end, variable='confirmed', countries=None, label=''
 				plot_height=400, 
 				x_axis_type="datetime", 
 				title=title, 
-				tools=[hover], 
+				# tools=[hover], 
 			)
+		p.add_tools(hover)
 
 		if countries is None:
 			countries = []
@@ -209,137 +235,10 @@ def compare_countries(start, end, variable='confirmed', countries=None, label=''
 		# show(p)
 		save(p)
 
-def world_map():
-	"""
-	Interactive world map in bokeh figure
-	"""
-
-	shapefile = os.path.join(ws.folders['data/misc'], 'countries/ne_110m_admin_0_countries.shp')
-
-	# Read shapefile using Geopandas
-	gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
-	# print(gdf.head())
-
-	# Rename columns
-	gdf.columns = ['country', 'country_code', 'geometry']
-	# print(gdf.head())
-
-	# Drop row corresponding to 'Antarctica'
-	gdf = gdf.drop(gdf.index[159])
-	# print(gdf.head())
-
-	# Folder containing daily reports
-	folder = os.path.join(ws.folders['data/covid'], 'csse_covid_19_data/csse_covid_19_daily_reports/')
-
-	# Point to the global dataframe (no provinces)
-	df = ws.data_countries_only
-
-	# Change nans with 0
-	# df.fillna(0, inplace=True)
-
-	# Merge the data frames
-	df_last_date = df[df['date_key'] == ws.dates_keys[-1]][['country_region', 'active']]
-	merged = gdf.merge(df_last_date, left_on='country', right_on='country_region', how='left')
-	# merged.fillna('No data', inplace=True)
-
-	print('')
-	print(merged)
-	
-	# Read data to json
-	merged_json = json.loads(merged.to_json())
-
-	# Convert to String like object.
-	json_data = json.dumps(merged_json)
-	# print('')
-	# print('merged_json:')
-	# print(merged_json['features'].__dict__.keys())
-
-	# Input GeoJSON source that contains features for plotting.
-	geosource = GeoJSONDataSource(geojson=json_data)
-
-	# print('')
-	# print(geosource)
-	
-	# Define a sequential multi-hue color palette.
-	order = int(np.log10(df_last_date['active'].max()))
-	palette = brewer['Reds'][order + 1]
-	
-	# Reverse color order so that dark blue is highest obesity.
-	palette = palette[::-1]
-	
-	# Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors. Input nan_color.
-	color_mapper = LinearColorMapper(palette=palette, low=0, high=df_last_date['active'].max())
-	# color_mapper_log = LogColorMapper(palette=palette, low=1, high=df_last_date['active'].max())
-	color_mapper_log = LogColorMapper(palette=palette, low=1, high=10**(order+1))
-	# color_mapper_log = LogColorMapper(palette=palette, low=1, high=1e5+1)
-	# color_mapper = LinearColorMapper(palette = palette, low = 0, high = 40, nan_color = '#d9d9d9')
-	
-	# Define custom tick labels for color bar.
-	tick_labels = dict([('%i'%i, '%i'%i) for i in np.arange(90000)])
-	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
-	# print(tick_labels_log)
-
-	# Add hover tool
-	hover = HoverTool(tooltips=[('País', '@country'), ('Casos', '@active')])
-
-	#Create color bar. 
-	color_bar = ColorBar(
-			color_mapper=color_mapper, 
-			label_standoff=8, 
-			width = 500, 
-			height = 20,
-			border_line_color=None, 
-			location = (0,0), 
-			orientation = 'horizontal', 
-			major_label_overrides = tick_labels
-		)
-	color_bar_log = ColorBar(
-			color_mapper=color_mapper_log, 
-			label_standoff=8, 
-			width = 500, 
-			height = 10,
-			border_line_color=None, 
-			location = (0,0), 
-			orientation = 'horizontal', 
-			ticker=LogTicker(), 
-		)
-
-	# Create figure object.
-	p = figure(
-			title = 'Casos reportados como activos en el mundo, %s'%ws.dates_keys[-1], 
-			plot_height = 500, 
-			plot_width = 800, 
-			toolbar_location = None, 
-			tools = [hover]
-		)
-
-	p.xgrid.grid_line_color = None
-	p.ygrid.grid_line_color = None
-
-	# Add patch renderer to figure. 
-	p.patches(
-			'xs', 
-			'ys', 
-			source = geosource, 
-			fill_color = {'field' :'active', 'transform' : color_mapper_log}, 
-			line_color = 'black', 
-			line_width = 0.25, 
-			fill_alpha = 1
-		)
-
-	#Specify layout
-	p.add_layout(color_bar_log, 'below')
-
-	# Display plot
-
-	# Save file
-	output_file(os.path.join(ws.folders["website/static/images"], "world_map.html"))
-	# show(p)
-	save(p)
-
-def get_new_7_days(start_index, end_index, variable, country='world'):
+def get_new_7_days(start_index, end_index, variable, country='world', avg=False):
 		""" Get the new cases in the last 7 days for a country """
 
+		# Get data for countries
 		df = ws.data_countries_only
 		# Choose country from the dataset
 		if country != 'world':
@@ -348,12 +247,19 @@ def get_new_7_days(start_index, end_index, variable, country='world'):
 		# Target size for the arrays to return
 		target_size = end_index - start_index + 1
 
+		# Number of days
+		ndays = 7
+		# Choose if the output is an average
+		if avg:
+			avg_div = ndays
+		else:
+			avg_div = 1
+
 		# Data to return
 		data = {}
 
 		# Get confirmed and active cases
 		# The time series need to span the whole time (or, at least, 7 days before start_index)
-		ndays = 7
 		if start_index >= ndays:
 			start_index_ = start_index - (ndays - 1)
 		else:
@@ -386,7 +292,7 @@ def get_new_7_days(start_index, end_index, variable, country='world'):
 			new7days[i] += new[:i+1].sum()
 		for i in range(ndays - 1, len(new), 1):
 			new7days[i] += new[i-(ndays-1):i+1].sum()
-		data['new_7_days'] = new7days
+		data['new_7_days'] = new7days // avg_div
 
 		data['country'] = len(data[variable]) * [country]
 
@@ -417,7 +323,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 		addstr = 'Colombia'
 	title = title + addstr
 
-	data = get_new_7_days(start_index, end_index, variable, country=country)
+	data = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
 
 	# Bokeh figure for the country
 
@@ -430,8 +336,9 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 			plot_height=400, 
 			x_axis_type="datetime", 
 			title=title, 
-			tools = [hover]
+			# tools = [hover]
 		)
+	p.add_tools(hover)
 
 	# Add a circle renderer with a size, color and alpha
 	p.circle(variable, 'new_7_days', source=data, size=5, color="black", alpha=0.5)
@@ -440,6 +347,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 	# Arrange figure
 	p.xaxis.axis_label = 'Casos %s'%trans[variable]
 	p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
+	p.yaxis.axis_label = 'Casos nuevos (promedio de 7 días)'
 	p.xaxis.formatter = NumeralTickFormatter(format="0")
 	p.yaxis.formatter = NumeralTickFormatter(format="0")
 	p.toolbar.logo = None
@@ -469,15 +377,16 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 					x_axis_type="log", 
 					y_axis_type="log", 
 					title="Casos nuevos vs. casos %s. Ejes en escala logarítmica"%trans[variable], 
-					tools = [hover2], 
+					# tools = [hover2], 
 				)
 		else:
 			p = figure(
 					plot_width=800, 
 					plot_height=400, 
 					title="Casos nuevos vs. casos %s"%trans[variable], 
-					tools = [hover2], 
+					# tools = [hover2], 
 				)
+		p.add_tools(hover2)
 		if x_range is not None:
 			p.x_range = Range1d(*x_range)
 		if y_range is not None:
@@ -489,7 +398,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 			countries = ws.top_ten
 		for country in countries:
 
-			data = get_new_7_days(start_index, end_index, variable, country=country)
+			data = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
 			
 			# Add a circle renderer with a size, color and alpha
 			p.circle(variable, 'new_7_days', source=data, size=5, color="black", alpha=0.2)
@@ -497,13 +406,13 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 			# Last circle indicating the country
 			data_last = {k: [v[-1]] for k, v in data.items()}
 			data_last['country'] = [country]
-			# print(data_last)
 			p.circle(variable, 'new_7_days', source=data_last, size=10, color="magenta", alpha=1.)
 			p.text(x=data_last[variable], y=data_last['new_7_days'], text=[country],text_baseline="middle", text_align="left")
 
 		# Arrange figure
 		p.xaxis.axis_label = 'Casos %s'%trans[variable]
 		p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
+		p.yaxis.axis_label = 'Casos nuevos (promedio de 7 días)'
 		p.xaxis.formatter = NumeralTickFormatter(format="0")
 		p.yaxis.formatter = NumeralTickFormatter(format="0")
 		p.toolbar.logo = None
@@ -541,7 +450,8 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 	# Explanatory text for each variable
 	variable_str = {
 		'new': '', 
-		'new_7_days': 'en los últimos 7 días'
+		# 'new_7_days': 'en los últimos 7 días'
+		'new_7_days': '(promedio de 7 días)'
 	}
 
 	# Start and end indices
@@ -549,6 +459,7 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 	
 	# Choose title
 	title = "Casos nuevos %s en "%variable_str[variable]
+	title = "Casos nuevos (%s) en "%variable_str[variable]
 	if country == 'world':
 		addstr = 'el mundo'
 	elif country == 'Spain':
@@ -557,7 +468,7 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 		addstr = 'Colombia'
 	title = title + addstr
 
-	data = get_new_7_days(start_index, end_index, variable, country=country)
+	data = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
 
 	# Bokeh figure for the country
 
@@ -587,7 +498,8 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 	# Arrange figure
 	# p.x_range = Range1d(data['date_obj'][0], data['date_obj'][-1])
 	p.xaxis.axis_label = 'Fecha'
-	p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
+	# p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
+	p.yaxis.axis_label = 'Casos nuevos (promedio de 7 días)'
 	p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
 	p.yaxis.formatter = NumeralTickFormatter(format="0")
 	p.toolbar.logo = None
@@ -604,7 +516,8 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 	if country == 'world':
 
 		# Hover tool indicating the country
-		hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos nuevos (últ. 7d)', '@new_7_days')])
+		# hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos nuevos (últ. 7d)', '@new_7_days')])
+		hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos nuevos (prom. 7 días)', '@new_7_days')])
 
 		# Figure
 		if log:
@@ -613,7 +526,7 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 					plot_height=400,
 					x_axis_type="datetime", 
 					title="Casos nuevos %s en los %i países con más casos confirmados"%(variable_str[variable], ws.ntop), 
-					tools = [hover2], 
+					# tools = [hover2], 
 					y_axis_type="log", 
 				)
 		else:
@@ -622,8 +535,9 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 					plot_height=400,
 					x_axis_type="datetime", 
 					title="Casos nuevos %s en los %i países con más casos confirmados"%(variable_str[variable], ws.ntop), 
-					tools = [hover2], 
+					# tools = [hover2], 
 				)
+		p.add_tools(hover2)
 		if y_range is not None:
 			p.y_range = Range1d(*y_range)
 
@@ -633,7 +547,7 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 			countries = ws.top_ten
 		for i, country in enumerate(countries):
 
-			data = get_new_7_days(start_index, end_index, variable, country=country)
+			data = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
 			
 			# Add a circle renderer with a size, color and alpha
 			p.circle('date_obj', variable, source=data, color=Spectral11[i], size=5, alpha=1., legend_label=country)
@@ -694,7 +608,7 @@ def countries_dayn(n, countries):
 		data['confirmed'] = x[:]
 
 		# Get new cases in 7 days
-		data_n7d = get_new_7_days(start_index, end_index, 'confirmed', country=country)
+		data_n7d = get_new_7_days(start_index, end_index, 'confirmed', country=country, avg=True)
 
 		# Days
 		days = np.arange(len(dates_))
@@ -707,7 +621,7 @@ def countries_dayn(n, countries):
 		# VELOCIDAD
 		c = data['confirmed']
 		velocidad = c[1:] - c[:-1]
-		velocidad = data_n7d['new_7_days'] / 7.
+		velocidad = data_n7d['new_7_days']
 		# ax2.plot(days[1:], velocidad, 'o-', lw=linewidths[country], label=country)
 		ax2.plot(days, velocidad, 'o-', lw=linewidths[country], label=country)
 
@@ -743,3 +657,41 @@ def countries_dayn(n, countries):
 	fig2.savefig(os.path.join(ws.folders['website/static/images'], 'custom_velocidad_%i_%s_v4.png'%(n, ''.join([c[0] for c in countries]))), bbox_inches='tight', dpi=300)
 	fig3.savefig(os.path.join(ws.folders['website/static/images'], 'custom_aceleracion_%i_%s_v2.png'%(n, ''.join([c[0] for c in countries]))), bbox_inches='tight', dpi=300)
 	# plt.show()
+
+def horizontal_bar_plot(variable, df, country='world'):
+	""" Make a horizontal bar plot of the provinces of a country """
+
+	df = df.loc[:10][::-1]
+	series = df.loc[:, variable]
+	print('series:', series)
+	names = df.loc[:, 'departamento'].tolist()
+
+	# Hover tool
+	hover = HoverTool(tooltips=[('Departamento', '@departamento'), ('Casos confirmados', '@confirmed')])
+
+	# Figure
+	p = figure(
+			width=500, 
+			height=300, 
+			y_range=names, 
+			title="Casos confirmados en los\n10 departamentos más afectados"
+		)
+	# p.add_tools(hover)
+	p.toolbar.logo = None
+
+	p.grid.grid_line_alpha=1.0
+	p.grid.grid_line_color = "white"
+
+	p.xaxis.axis_label = 'Casos confirmados'
+	p.yaxis.axis_label = 'Departamento o distrito'
+
+	j = 0
+	for k, v in series.iteritems():
+	  print(k,v,j)
+	  p.rect(x=v/2, y=j+0.5, width=abs(v), height=0.4,color=(76,114,176), width_units="data", height_units="data")
+	  # p.rect(x=v/2, y=j+0.5, source=df, width=abs(v), height=0.4,color=(76,114,176), width_units="data", height_units="data")
+	  j += 1
+
+	output_file(os.path.join(ws.folders["website/static/images"], "%s_hbarplot.html"%country.lower()))
+	# show(p)
+	save(p)

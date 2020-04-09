@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Contain useful functions
 """
+import math
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -54,3 +55,15 @@ def configure_axes(ax, xlims, xlabel=None, ylabel=None, title=None):
 	ax.set_xlim(*xlims)
 	ax.grid(True, color='#D3D3D3')
 	ax.set_title(title)
+
+def round_up_order(x, order=0):
+	""" Round x to the closest higher number of order 'order' """
+	factor = 10 ** order
+	reduced = x / factor
+	return math.ceil(reduced) * factor
+
+def round_down_order(x, order=0):
+	""" Round x to the closest lower number of order 'order' """
+	factor = 10 ** order
+	reduced = x / factor
+	return math.floor(reduced) * factor

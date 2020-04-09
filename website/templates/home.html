@@ -29,13 +29,13 @@
 
 				<h4>Crecimiento</h4>
 
-				<p align="justify">En el siguiente gráfico se puede ver el número de casos confirmados nuevos (o contagios reportados) en los últimos siete días de cada fecha.</p>
+				<p align="justify">En el siguiente gráfico se puede ver, para cada fecha, el promedio en siete días de casos confirmados nuevos (o contagios reportados).</p>
 
 				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth']) }}" style="height: 450px; width: 850px;"></object>
 
 				<p align="justify"><b>¿Cómo interpretar este gráfico?</b></p>
 
-				<p align="justify">Cada punto de la trayectoria de un país corresponde a un día del calendario. La tendencia de casos nuevos hace que la trayectoria se mueva sobre el eje vertical: si un día muestra el mismo número de casos confirmados nuevos (en los últimos siete días) que el anterior, la trayectoria de la curva se mantendrá en el mismo nivel. A esto podemos llamarlo <b>crecimiento estable</b>. Si este número disminuye o aumenta, descenderá (<b>crecimiento decelerado</b>) o subirá (<b>crecimiento acelerado</b>), respectivamente. Es importante indicar que el crecimiento decelerado no es lo mismo que <b>decrecimiento</b>; sigue siendo crecimiento. El decrecimiento ocurre cuando el crecimiento tiene valores negativos. Los casos confirmados corresponden a una variable acumulativa. Por lo tanto, es imposible tener decrecimiento para esta variable.</p>
+				<p align="justify">Cada punto de la trayectoria de un país corresponde a un día del calendario. La tendencia de casos nuevos hace que la trayectoria se mueva sobre el eje vertical: si un día muestra el mismo promedio de casos confirmados nuevos que el anterior, la trayectoria de la curva se mantendrá en el mismo nivel. A esto podemos llamarlo <b>crecimiento estable</b>. Si este número disminuye o aumenta, descenderá (<b>crecimiento decelerado</b>) o subirá (<b>crecimiento acelerado</b>), respectivamente. Es importante indicar que el crecimiento decelerado no es lo mismo que <b>decrecimiento</b>; sigue siendo crecimiento. El decrecimiento ocurre cuando el crecimiento tiene valores negativos. Los casos confirmados corresponden a una variable acumulativa. Por lo tanto, es imposible tener decrecimiento para esta variable.</p>
 
 				<p align="justify"><b>¿Qué ocurre con los países de este gráfico?</b></p>
 
@@ -45,7 +45,7 @@
 
 				<p><b>¿Porqué usar siete días y no los casos reportados de cada día?</b></p>
 
-				<p align="justify">Se han escogido siete días y no uno porque la variación diaria de los casos nuevos es grande y no es representativa de una tendencia real de crecimiento. Como ejemplo hipotético, supongamos que después de reportar 1.000 casos nuevos en un día, un país tiene problemas técnicos en sus pruebas y al día siguiente reporta solo 100 casos. Al día siguiente, los problemas se solucionan y reporta 1.100 casos nuevos. Saber que se han reportado 2.200 casos nuevos en los últimos tres días es más útil que saber que un día se reportaron 1.000, al día siguiente, 100 y al siguiente, 1.100. Usando siete días, las curvas se suavizan y se obtiene una visión más clara de los casos nuevos en el lapso de una semana.</p>
+				<p align="justify">Se han escogido siete días y no uno porque la variación diaria de los casos nuevos es grande y no es representativa de una tendencia real de crecimiento. Como ejemplo hipotético, supongamos que después de reportar 1.000 casos nuevos en un día, un país tiene problemas técnicos en sus pruebas y al día siguiente reporta solo 100 casos. Al día siguiente, los problemas se solucionan y reporta 1.300 casos nuevos. Saber que en los últimos tres días se han reportado, en promedio, 2.400 / 3 = 800 casos nuevos  es más útil que saber que un día se reportaron 1.000, al día siguiente, 100 y al siguiente, 1.300. Usando siete días, las curvas se suavizan y se obtiene una visión más clara de los casos nuevos en el lapso de una semana.</p>
 
 				<p><b>Eje vertical en escala logarítmica</b></p>
 
@@ -53,15 +53,15 @@
 
 				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_log']) }}" style="height: 500px; width: 850px;"></object>
 
-				<h4>Evolución de la enfermedad: comparación entre casos nuevos en los últimos siete días y casos activos</h4>
+				<h4>Evolución de la enfermedad: comparación entre el promedio de casos nuevos y los casos activos</h4>
 
-				<p align="justify">El siguiente gráfico muestra la comparación entre casos nuevos en los últimos siete días (misma variable que en el gráfico anterior) y los casos activos para los 10 países con mayor número de casos confirmados.</p>
+				<p align="justify">El siguiente gráfico muestra la comparación entre el promedio de casos nuevos en siete días (misma variable que en el gráfico anterior) y los casos activos para los 10 países con mayor número de casos confirmados.</p>
 
 				<object type="text/html" data="{{ url_for('static', filename=figures['top_ten_growth_vs_active_log']) }}" style="height: 450px; width: 850px;"></object>
 
 				<p align="justify"><b>¿Cómo interpretar este gráfico?</b></p>
 
-				<p align="justify">Este gráfico muestra el progreso de cada país representado sobre su ciclo de contagio y recuperación. Todos los países empiezan en el punto (0, 0), es decir, teniendo cero casos activos y nuevos. Una vez empieza a haber contagios en un país, su número de casos activos aumenta. En este gráfico, eso significa que el punto rosado correspondiente a ese país avanza hacia la derecha. Además, este punto sube sobre el eje vertical hasta indicar el número de contagios que ha habido en los últimos siete días. Cuando el país se recupera, el número de casos activos empieza a disminuir (el punto rosado viaja hacia la izquierda). Un país totalmente recuperado ha vuelto al punto (0, 0).</p>
+				<p align="justify">Este gráfico muestra el progreso de cada país representado sobre su ciclo de contagio y recuperación. Todos los países empiezan en el punto (0, 0), es decir, teniendo cero casos activos y nuevos. Una vez empieza a haber contagios en un país, su número de casos activos aumenta. En este gráfico, eso significa que el punto rosado correspondiente a ese país avanza hacia la derecha. Además, este punto sube sobre el eje vertical hasta indicar el número de contagios que ha habido, en promedio, en los últimos siete días. Cuando el país se recupera, el número de casos activos empieza a disminuir (el punto rosado viaja hacia la izquierda). Un país totalmente recuperado ha vuelto al punto (0, 0).</p>
 				<p align="justify">Los conceptos de crecimiento estable, acelerado y decelerado de los gráficos anteriores deben ser reinterpretados en este. Esos conceptos se refieren al número de casos confirmados. Sin embargo, en este gráfico se puede estar en crecimiento de casos confirmados y a la vez, tener una reducción del número de casos activos. Esto se debe a que las recuperaciones y las muertes reducen el número de casos activos. Este es el caso de la curva de China.</p>
 
 				<p align="justify"><b>¿Qué ocurre con los países de este gráfico? (nota válida a día 29 de marzo)</b></p>

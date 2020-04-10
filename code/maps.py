@@ -23,6 +23,7 @@ import itertools
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
@@ -84,11 +85,17 @@ def colombia_map(variable='confirmed', logscale=False):
 	max_value = df[variable].max()
 	max_rounded = utl.round_up_order(max_value, order)
 	nlinticks = max_rounded // (10 ** order) + 1
+
 	if logscale:
 		palette = brewer['Reds'][order + 1]
 	else:
-		palette = brewer['Reds'][nlinticks - 1]
-	
+		try:
+			palette = brewer['Reds'][nlinticks - 1]
+		except KeyError:
+			# nlinticks is too large; use a matplotlib colormap
+			cm = plt.cm.hot(mpl.colors.Normalize()(np.arange(nlinticks - 1))) * 255
+			palette = ["#%02x%02x%02x"%(int(r), int(g), int(b)) for r, g, b, _ in cm]
+
 	# Reverse color order so that dark blue is highest obesity.
 	palette = palette[::-1]
 	
@@ -103,7 +110,7 @@ def colombia_map(variable='confirmed', logscale=False):
 	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
 
 	# Add hover tool
-	hover = HoverTool(tooltips=[('Departamento', '@departamento_x'), ('Casos', '@confirmed')])
+	hover = HoverTool(tooltips=[('Departamento', '@departamento_y'), ('Casos', '@confirmed')])
 
 	#Create color bar. 
 	color_bar = ColorBar(

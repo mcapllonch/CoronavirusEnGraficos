@@ -663,7 +663,6 @@ def horizontal_bar_plot(variable, df, country='world'):
 
 	df = df.loc[:10][::-1]
 	series = df.loc[:, variable]
-	print('series:', series)
 	names = df.loc[:, 'departamento'].tolist()
 
 	# Hover tool
@@ -683,11 +682,10 @@ def horizontal_bar_plot(variable, df, country='world'):
 	p.grid.grid_line_color = "white"
 
 	p.xaxis.axis_label = 'Casos confirmados'
-	p.yaxis.axis_label = 'Departamento o distrito'
+	# p.yaxis.axis_label = 'Departamento o distrito'
 
 	j = 0
 	for k, v in series.iteritems():
-	  print(k,v,j)
 	  p.rect(x=v/2, y=j+0.5, width=abs(v), height=0.4,color=(76,114,176), width_units="data", height_units="data")
 	  # p.rect(x=v/2, y=j+0.5, source=df, width=abs(v), height=0.4,color=(76,114,176), width_units="data", height_units="data")
 	  j += 1

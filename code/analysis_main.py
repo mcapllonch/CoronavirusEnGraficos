@@ -81,7 +81,7 @@ def make_graphs():
 	maps.colombia_map()
 	# Bar plot
 	tls.horizontal_bar_plot('confirmed', ws.data_specific['Colombia'], country='Colombia')
-	sys.exit()
+	# sys.exit()
 
 	# Time series starting from 'Day 100' for several countries
 	if False:

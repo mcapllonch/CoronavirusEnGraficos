@@ -110,7 +110,7 @@ def colombia_map(variable='confirmed', logscale=False):
 	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
 
 	# Add hover tool
-	hover = HoverTool(tooltips=[('Departamento', '@departamento_y'), ('Casos', '@confirmed')])
+	hover = HoverTool(tooltips=[('Departamento', '@departamento_x'), ('Casos', '@confirmed')])
 
 	#Create color bar. 
 	color_bar = ColorBar(

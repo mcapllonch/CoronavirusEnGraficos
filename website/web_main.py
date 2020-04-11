@@ -61,7 +61,7 @@ def home():
 	# Figures to show on the Home page
 	figures = {
 		"world_graph": "images/world_graph.html", 
-		"world_map": "images/world_map.html", 
+		"world_map": "images/world_map_log.html", 
 		"top_ten_growth": "images/new_7_days_vs_date_top_n10_.html", 
 		"top_ten_growth_log": "images/new_7_days_vs_date_top_n10_logscale.html", 
 		"top_ten_growth_vs_active_log": "images/new_vs_active_last7days_top_n10_logscale.html", 

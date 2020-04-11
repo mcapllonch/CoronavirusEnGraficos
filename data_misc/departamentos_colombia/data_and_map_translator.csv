@@ -1,34 +1,34 @@
-cartodb_id,iso,departamento,departamento_ins_1,capitales
-1,CO-AMA ,Amazonas ,Amazonas ,
-2,CO-ANT ,Antioquia ,Antioquia ,
-3,CO-ARA ,Arauca ,Arauca ,
-5,CO-ATL ,Atlántico ,Atlántico ,Barranquilla D.E.
-6,CO-BOL ,Bolívar ,Bolívar ,Cartagena D.T. y C.
-7,CO-BOY ,Boyacá ,Boyacá ,
-8,CO-CAL ,Caldas ,Caldas ,
-9,CO-CAQ ,Caquetá ,Caquetá ,
-10,CO-CAS ,Casanare ,Casanare ,
-11,CO-CAU ,Cauca ,Cauca ,
-12,CO-CES ,Cesar ,Cesar ,
-13,CO-CHO ,Chocó ,Chocó ,
-14,CO-COR ,Córdoba ,Córdoba ,
-15,CO-CUN ,Cundinamarca ,Cundinamarca ,
-16,CO-GUA ,Guainía ,Guainía ,
-17,CO-GUV ,Guaviare ,Guaviare ,
-18,CO-HUI ,Huila ,Huila ,
-19,CO-LAG ,La Guajira ,La Guajira ,
-20,CO-MAG ,Magdalena ,Magdalena ,Santa Marta D.T. y C.
-21,CO-MET ,Meta ,Meta ,
-22,CO-NAR ,Nariño ,Nariño ,
-23,CO-NSA ,Norte de Santander ,Norte de Santander ,
-24,CO-PUT ,Putumayo ,Putumayo ,
-25,CO-QUI ,Quindío ,Quindío ,
-26,CO-RIS ,Risaralda ,Risaralda ,
-27,CO-DC,Bogotá D. C.,Bogotá D.C.,
-4,CO-SAP ,San Andrés y Providencia ,San Andrés,San Andrés
-28,CO-SAN ,Santander ,Santander ,
-29,CO-SUC ,Sucre ,Sucre ,
-30,CO-TOL ,Tolima ,Tolima ,
-31,CO-VAC ,Valle del Cauca ,Valle del Cauca ,
-32,CO-VAU ,Vaupés ,Vaupés ,
-33,CO-VID ,Vichada,Vichada,
+cartodb_id,iso,departamento,departamento_ins_1,capitales,departamento_correcto
+1,CO-AMA ,Amazonas ,Amazonas ,,Amazonas 
+2,CO-ANT ,Antioquia ,Antioquia ,,Antioquia 
+3,CO-ARA ,Arauca ,Arauca ,,Arauca 
+5,CO-ATL ,Atlántico ,Atlántico ,Barranquilla D.E.,Atlántico 
+6,CO-BOL ,Bolívar ,Bolívar ,Cartagena D.T. y C.,Bolívar 
+7,CO-BOY ,Boyacá ,Boyacá ,,Boyacá 
+8,CO-CAL ,Caldas ,Caldas ,,Caldas 
+9,CO-CAQ ,Caquetá ,Caquetá ,,Caquetá 
+10,CO-CAS ,Casanare ,Casanare ,,Casanare 
+11,CO-CAU ,Cauca ,Cauca ,,Cauca 
+12,CO-CES ,Cesar ,Cesar ,,Cesar 
+13,CO-CHO ,Chocó ,Chocó ,,Chocó 
+14,CO-COR ,Córdoba ,Córdoba ,,Córdoba 
+15,CO-CUN ,Cundinamarca ,Cundinamarca ,,Cundinamarca 
+16,CO-GUA ,Guainía ,Guainía ,,Guainía 
+17,CO-GUV ,Guaviare ,Guaviare ,,Guaviare 
+18,CO-HUI ,Huila ,Huila ,,Huila 
+19,CO-LAG ,La Guajira ,La Guajira ,,La Guajira 
+20,CO-MAG ,Magdalena ,Magdalena ,Santa Marta D.T. y C.,Magdalena 
+21,CO-MET ,Meta ,Meta ,,Meta 
+22,CO-NAR ,Nariño ,Nariño ,,Nariño 
+23,CO-NSA ,Norte de Santander ,Norte de Santander ,,Norte de Santander 
+24,CO-PUT ,Putumayo ,Putumayo ,,Putumayo 
+25,CO-QUI ,Quindío ,Quindío ,,Quindio 
+26,CO-RIS ,Risaralda ,Risaralda ,,Risaralda 
+27,CO-DC,Bogotá D. C.,Bogotá D.C.,,"Bogotá, D.C."
+4,CO-SAP ,San Andrés y Providencia ,San Andrés,San Andrés,San Andrés
+28,CO-SAN ,Santander ,Santander ,,Santander 
+29,CO-SUC ,Sucre ,Sucre ,,Sucre 
+30,CO-TOL ,Tolima ,Tolima ,,Tolima 
+31,CO-VAC ,Valle del Cauca ,Valle del Cauca ,,Valle del Cauca 
+32,CO-VAU ,Vaupés ,Vaupés ,,Vaupés 
+33,CO-VID ,Vichada,Vichada,,Vichada

@@ -62,11 +62,14 @@ def colombia_map(variable='confirmed', logscale=False):
 	# Lower the strings in 'departamento'
 
 	# Point to the Colombian COVID-19 dataframe
-	df = ws.data_specific['Colombia']
+	df = ws.data_specific['Colombia']['last_date']
 
 	# Change cartodb_id to int so that the dataframes can be merged
 	df.cartodb_id = df.cartodb_id.astype(int)
 	gdf.cartodb_id = gdf.cartodb_id.astype(int)
+
+	# For merging, leave only the relevant columns
+	df = df[['cartodb_id', 'iso', 'departamento_correcto', 'confirmed']]
 
 	# Merge the dataframes
 	merged = gdf.merge(df, left_on='cartodb_id', right_on='cartodb_id', how='left')
@@ -85,20 +88,25 @@ def colombia_map(variable='confirmed', logscale=False):
 	max_value = df[variable].max()
 	max_rounded = utl.round_up_order(max_value, order)
 	nlinticks = max_rounded // (10 ** order) + 1
+	# If max_rounded is too low (so there are too little nlinticks), just force 11 ticks
+	if nlinticks <= 5:
+		max_rounded = utl.round_up_order(max_value, order - 1)
+		nlinticks = max_rounded // (10 ** (order - 1)) + 1
 
 	if logscale:
 		palette = brewer['Reds'][order + 1]
 	else:
 		try:
 			palette = brewer['Reds'][nlinticks - 1]
+			# Reverse color order so that dark blue is highest value.
+			palette = palette[::-1]
 		except KeyError:
 			# nlinticks is too large; use a matplotlib colormap
-			cm = plt.cm.hot(mpl.colors.Normalize()(np.arange(nlinticks - 1))) * 255
+			cmap = plt.cm.hot
+			cmap = plt.cm.Reds
+			cm = cmap(mpl.colors.Normalize()(np.arange(nlinticks - 1))) * 255
 			palette = ["#%02x%02x%02x"%(int(r), int(g), int(b)) for r, g, b, _ in cm]
 
-	# Reverse color order so that dark blue is highest obesity.
-	palette = palette[::-1]
-	
 	# Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors. Input nan_color.
 	color_mapper = LinearColorMapper(palette=palette, low=0, high=max_rounded)
 	color_mapper_log = LogColorMapper(palette=palette, low=1, high=10**(order+1))
@@ -110,13 +118,13 @@ def colombia_map(variable='confirmed', logscale=False):
 	tick_labels_log = dict([('%i'%i, '%i'%i) for i in np.logspace(0, order, order + 1)])
 
 	# Add hover tool
-	hover = HoverTool(tooltips=[('Departamento', '@departamento_x'), ('Casos', '@confirmed')])
+	hover = HoverTool(tooltips=[('Departamento', '@departamento_correcto'), ('Casos', '@confirmed')])
 
 	#Create color bar. 
 	color_bar = ColorBar(
 			color_mapper=color_mapper, 
 			label_standoff=8, 
-			width = 300, 
+			width = 350, 
 			height = 10,
 			border_line_color=None, 
 			location = (0,0), 
@@ -126,7 +134,7 @@ def colombia_map(variable='confirmed', logscale=False):
 	color_bar_log = ColorBar(
 			color_mapper=color_mapper_log, 
 			label_standoff=8, 
-			width = 300, 
+			width = 350, 
 			height = 10,
 			border_line_color=None, 
 			location = (0,0), 
@@ -134,9 +142,15 @@ def colombia_map(variable='confirmed', logscale=False):
 			ticker=LogTicker(), 
 		)
 
+	# Last date for Colombia (to put in the title)
+	df_ = ws.data_specific['Colombia']['time_series']
+	last_date = df_['fecha_obj'].max()
+	last_date = df_[df_['fecha_obj'] == last_date]['fecha'].tolist()[0]
+	# Now 'delete' df_
+	del(df_)
 	# Create figure object.
 	p = figure(
-			title = 'Casos confirmados en Colombia, %s'%ws.dates_keys[-1], 
+			title = 'Casos confirmados en Colombia, %s'%last_date, 
 			plot_height = 500, 
 			plot_width = 400, 
 			# aspect_ratio="auto", 

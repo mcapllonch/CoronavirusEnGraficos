@@ -23,6 +23,8 @@ import sys
 import numpy as np
 import pandas as pd
 from collections import Counter
+from datetime import datetime
+import datetime as dt_
 
 import datahandler as dh
 import read_time_series as rts
@@ -73,39 +75,42 @@ def setup_folders():
 def make_graphs():
 	""" Make all the necessary graphs for the web site """
 
-	df = ws.data
-	ws.top_ten = tls.top_n(10).tolist()
-	ws.ntop = len(ws.top_ten)
+	########################
+	# Miscellanea
 
+	# Translation keys for the variables
+	ws.trans = {
+		'active': 'activos', 
+		'confirmed': 'confirmados', 
+	}
+
+	########################
+	# Top 10
+	df = ws.data
+	ws.ntop = 10
+	ws.top_ten = tls.top_n(df=ws.data_countries_only, n=ws.ntop)
+
+	########################
+	# Products for Colombia
+
+	# Get data
+	df = ws.data_specific['Colombia']
 	# Map for Colombia
 	maps.colombia_map()
 	# Bar plot
-	tls.horizontal_bar_plot('confirmed', ws.data_specific['Colombia'], country='Colombia')
+	tls.horizontal_bar_plot('confirmed', df['last_date'], country='Colombia')
+	tls.top_n_time_series(
+			df=df['time_series'], 
+			n=5, 
+			key_groupby='iso', 
+			dates='fecha_obj', 
+			variable='confirmed', 
+			label='departamento', 
+			title='Serie de tiempo de los departamentos más afectados', 
+			region_label='Colombia', 
+		)
 	# sys.exit()
 
-	# Time series starting from 'Day 100' for several countries
-	if False:
-		# Custom countries
-		custom_countries = [
-				'Colombia', 
-				'Spain', 
-				'Italy', 
-				'Ecuador', 
-				'South Korea', 
-				'Brazil', 
-			]
-		tls.countries_dayn(100, custom_countries)
-	else:
-		# Custom countries #2
-		custom_countries = [
-				'Colombia', 
-				'Peru', 
-				'Argentina', 
-				'Ecuador', 
-				'Chile', 
-			]
-		tls.countries_dayn(100, custom_countries)
-	
 	# New vs. active
 	tls.new_vs_active(
 			ws.dates_keys[0], 
@@ -219,6 +224,9 @@ def da_colombia_specific():
 	dt['departamento_normalized'] = dt['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 	dt['capitales_normalized'] = dt['capitales'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 
+	# Remove any spaces from the iso codes
+	dt['iso'] = dt['iso'].apply(lambda x: x.replace(' ', ''))
+
 	# Some provinces in df carry the names of their capital cities, so this needs to be sorted out
 	dt_short = dt[~dt['capitales'].isnull()]
 	capitales = {k: {'norm': a, 'departamento': b[:-1]} if b[-1] == ' ' else b for k, a, b in zip(dt_short['capitales'], dt_short['capitales_normalized'], dt_short['departamento'])}
@@ -230,14 +238,31 @@ def da_colombia_specific():
 	# Make a column with lowered and 'normalized' values, again, since some province names have been changed
 	df['departamento_normalized'] = df['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 
+	# Make dates homogeneous; this is necessary for the time series dataframe
+	df['fecha_de_diagnóstico'] = df['fecha_de_diagnóstico'].apply(lambda x: datetime.strptime(x, '%d/%m/%Y').date().strftime('%d/%m/%Y'))
+
 	# Merged the two into df
-	df = df.merge(dt, left_on="departamento_normalized", right_on="departamento_normalized", how="left")
+	df2 = df.merge(dt, left_on="departamento_normalized", right_on="departamento_normalized", how="left")
 
 	# Dictionary with province codes and names
-	dep_iso_dic = {k: {'norm': a, 'departamento': b[:-1] if b[-1] == ' ' else b} for k, a, b in zip(dt.iso, dt.departamento_normalized, dt.departamento)}
+	dep_iso_dic = {
+		k: {
+				'norm': a, 
+				'departamento': b[:-1] if b[-1] == ' ' else b, 
+				'departamento_correcto': c[:-1] if c[-1] == ' ' else c, 
+			} for k, a, b, c in zip(dt.iso, dt.departamento_normalized, dt.departamento, dt.departamento_correcto)
+		}
 
 	# Count cases per province
-	counter = {k: v for k, v in sorted(Counter(df['iso']).items(), key=lambda item: item[1], reverse=True)}
+	counter = {k: v for k, v in sorted(Counter(df2['iso']).items(), key=lambda item: item[1], reverse=True)}
+
+	# Fill up the rest of the provinces
+	for iso, k in zip(dt.iso, dt.departamento_correcto):
+		try:
+			_ = counter[iso]
+		except KeyError:
+			# It's not set yet; set it up
+			counter[iso] = 0
 
 	# Create table to show
 	dc = {
@@ -246,12 +271,73 @@ def da_colombia_specific():
 			'departamento': [dep_iso_dic[k]['departamento'] for k in counter.keys()], 
 			'departamento_normalized': [dep_iso_dic[k]['norm'] for k in counter.keys()], 
 			'confirmed': counter.values(), 
+			'departamento_correcto': [dt[dt['iso'] == k]['departamento_correcto'].tolist()[0] for k in counter.keys()], 
 		}
+
 	dfd = pd.DataFrame.from_dict(dc, orient='index').transpose()
 	dfd.to_html(os.path.join(ws.folders['website/static/images'], 'departamentos.html'), index=False)
 
-	# Save it to the work space
-	ws.data_specific['Colombia'] = dfd
+	#######################################################################################
+	# Obtain dataframe with time series
+	#######################################################################################
+
+	# Dictionary with information of new cases
+	info = {'iso': [], 'fecha': [], 'new': []}
+	for iso, fecha in zip(df2['iso'], df2['fecha_de_diagnóstico']):
+		info['iso'].append(iso)
+		info['fecha'].append(fecha)
+		info['new'].append(1)
+
+	# List iso codes and dates
+	# List iso codes
+	isos = list(set(info['iso']))
+	# fechas = list(set(info['fecha']))
+
+	# Dictionary to dataframe
+	ds1 = pd.DataFrame(info, columns=info.keys())
+
+	# Give it a date object
+	ds1['fecha_obj'] = ds1['fecha'].apply(lambda x: datetime.strptime(x, '%d/%m/%Y').date())
+
+	# Create a dictionary with a continuous range of dates
+	fechas_obj = sorted(list(set(ds1['fecha_obj'])))
+	start, end = fechas_obj[0], fechas_obj[-1]
+	days = (end - start).days
+	fechas_obj = [start + dt_.timedelta(i) for i in range(days + 1)]
+	# Put them in a dictionary
+	fechas = {f.strftime('%d/%m/%Y'): f for f in fechas_obj}
+
+	# Sort by date and group
+	ds1 = ds1.sort_values(by='fecha_obj', ignore_index=True).groupby(['iso', 'fecha', 'fecha_obj'], sort=False).sum().reset_index()
+
+	# Now create a new dataframe with the missing rows
+	new_info = {'iso': [], 'fecha': [], 'fecha_obj': [], 'new': [], 'confirmed': []}
+
+	for iso in isos:
+		data = ds1[ds1.iso == iso]
+		confirmed = 0
+		for k, v in fechas.items():
+			new_info['iso'].append(iso)
+			new_info['fecha'].append(k)
+			new_info['fecha_obj'].append(v)
+			if data[data.fecha == k].empty: 
+				new = 0
+			else:
+				new = data[data.fecha == k].new.tolist()[0]
+			new_info['new'].append(new)
+			confirmed += new
+			new_info['confirmed'].append(confirmed)
+
+	ds2 = pd.DataFrame(new_info, columns=new_info.keys())
+
+	# Add province names
+	ds2['departamento'] = [dep_iso_dic[k]['departamento_correcto'] for k in ds2.iso]
+
+	# Save data to the work space
+	ws.data_specific['Colombia'] = {
+		'last_date': dfd, 
+		'time_series': ds2
+	}
 
 def run_analysis():
 	""" Run a sample analysis """

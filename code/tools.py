@@ -35,6 +35,7 @@ import utils as utl
 
 
 plt.style.use('format001.mplstyle')
+plt.style.use('ggplot')
 
 
 def cases_per_day(x):
@@ -154,16 +155,11 @@ def compare_countries(start, end, variable='confirmed', countries=None, label=''
 		# Date range
 		start_index, end_index = get_start_end(start, end)
 
-		# Translation keys for the variables
-		trans = {
-			'active': 'activos', 
-			'confirmed': 'confirmados', 
-		}
 		# Choose title
-		title = "Casos %s%s"%(trans[variable], title_add)
+		title = "Casos %s%s"%(ws.trans[variable], title_add)
 
 		# Hover tool indicating the country
-		hover = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date_key'), ('Casos %s'%trans[variable], '@%s'%variable)])
+		hover = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date_key'), ('Casos %s'%ws.trans[variable], '@%s'%variable)])
 
 		# Figure
 		p = figure(
@@ -304,17 +300,11 @@ def get_new_7_days(start_index, end_index, variable, country='world', avg=False)
 def new_vs_active(start, end, x_range=None, y_range=None, variable='active', country='world', use_top_n=False, log=False):
 	""" Show graph of new cases vs. active """
 
-	# Translation keys for the variables
-	trans = {
-		'active': 'activos', 
-		'confirmed': 'confirmados', 
-	}
-
 	# Start and end indices
 	start_index, end_index = get_start_end(start, end)
 	
 	# Choose title
-	title = "Casos nuevos vs. casos %s en "%trans[variable]
+	title = "Casos nuevos vs. casos %s en "%ws.trans[variable]
 	if country == 'world':
 		addstr = 'el mundo'
 	elif country == 'Spain':
@@ -328,7 +318,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 	# Bokeh figure for the country
 
 	# Add hover tool
-	hover = HoverTool(tooltips=[('Fecha', '@date'), ('Casos %s'%trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
+	hover = HoverTool(tooltips=[('Fecha', '@date'), ('Casos %s'%ws.trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
 
 	# Figure
 	p = figure(
@@ -345,7 +335,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 	p.line(variable, 'new_7_days', source=data, line_width=2, color="black", alpha=0.5)
 
 	# Arrange figure
-	p.xaxis.axis_label = 'Casos %s'%trans[variable]
+	p.xaxis.axis_label = 'Casos %s'%ws.trans[variable]
 	p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
 	p.yaxis.axis_label = 'Casos nuevos (promedio de 7 días)'
 	p.xaxis.formatter = NumeralTickFormatter(format="0")
@@ -364,10 +354,10 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 	if country == 'world':
 
 		# Copy previous hover tool
-		hover_copy = HoverTool(tooltips=[('Fecha', '@date'), ('Casos %s'%trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
+		hover_copy = HoverTool(tooltips=[('Fecha', '@date'), ('Casos %s'%ws.trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
 
 		# Hover tool indicating the country
-		hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos %s'%trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
+		hover2 = HoverTool(tooltips=[('País', '@country'), ('Fecha', '@date'), ('Casos %s'%ws.trans[variable], '@%s'%variable), ('Casos nuevos (últ. 7d)', '@new_7_days')])
 
 		# Figure
 		if log:
@@ -376,14 +366,14 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 					plot_height=400, 
 					x_axis_type="log", 
 					y_axis_type="log", 
-					title="Casos nuevos vs. casos %s. Ejes en escala logarítmica"%trans[variable], 
+					title="Casos nuevos vs. casos %s. Ejes en escala logarítmica"%ws.trans[variable], 
 					# tools = [hover2], 
 				)
 		else:
 			p = figure(
 					plot_width=800, 
 					plot_height=400, 
-					title="Casos nuevos vs. casos %s"%trans[variable], 
+					title="Casos nuevos vs. casos %s"%ws.trans[variable], 
 					# tools = [hover2], 
 				)
 		p.add_tools(hover2)
@@ -410,7 +400,7 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 			p.text(x=data_last[variable], y=data_last['new_7_days'], text=[country],text_baseline="middle", text_align="left")
 
 		# Arrange figure
-		p.xaxis.axis_label = 'Casos %s'%trans[variable]
+		p.xaxis.axis_label = 'Casos %s'%ws.trans[variable]
 		p.yaxis.axis_label = 'Casos nuevos en los últimos 7 días'
 		p.yaxis.axis_label = 'Casos nuevos (promedio de 7 días)'
 		p.xaxis.formatter = NumeralTickFormatter(format="0")
@@ -428,24 +418,16 @@ def new_vs_active(start, end, x_range=None, y_range=None, variable='active', cou
 		# show(p)
 		save(p)
 
-def top_n(n=10):
-	""" F-ind top n countries by confirmed cases.
+def top_n(df, n=10, groupby=['country_region']):
+	""" Find top n countries/regions by confirmed cases.
 	Spans the whole COVID-19 period """
 
-	df = ws.data_countries_only
-
-	top_n = df.sort_values(by='confirmed', ignore_index=True, ascending=False).groupby(['country_region'], sort=False)['confirmed'].max().index[:n]
-	return top_n
+	top_n = df.sort_values(by='confirmed', ignore_index=True, ascending=False).groupby(groupby, sort=False)['confirmed'].max().index[:n]
+	return top_n.tolist()
 
 def new_time_series(start, end, y_range=None, country='world', variable='new', use_top_n=False, log=False):
 	""" Show the time series of new cases.
 	variable = 'new_7_days' means we are using the last cases in the last week for each day """
-
-	# Translation keys for the variables
-	trans = {
-		'active': 'activos', 
-		'confirmed': 'confirmados', 
-	}
 
 	# Explanatory text for each variable
 	variable_str = {
@@ -693,3 +675,34 @@ def horizontal_bar_plot(variable, df, country='world'):
 	output_file(os.path.join(ws.folders["website/static/images"], "%s_hbarplot.html"%country.lower()))
 	# show(p)
 	save(p)
+
+def top_n_time_series(df, n=10, key_groupby='country_region', dates='date', variable='confirmed', label='country_region', title='', region_label='world', logscale=False):
+	""" Show time series of the top 5 countries/regions/provinces in a dataset """
+
+	# Show the top 10 provinces
+	top_5 = top_n(df, n=5, groupby=[key_groupby])
+
+	# Show graph
+	plt.close('all')
+	width = 8
+	fig, ax = plt.subplots(figsize=(width, width * 0.61803398874988))
+
+	for key in top_5:
+		# Select the part of the dataframe I want
+		data = df[df[key_groupby] == key]
+		ax.plot(data[dates], data[variable], label=data[label].tolist()[0])
+
+	ax.set_xlabel('Fecha')
+	ax.set_ylabel('Casos %s'%ws.trans[variable])
+	ax.legend()
+	ax.set_title(title)
+	plt.xticks(rotation=45)
+	if logscale:
+		ax.set_yscale('log')
+	# plt.show()
+	logstrings = {
+		True: 'logscale', 
+		False: ''
+	}
+	filename = '%s_time_series_%s_v1.png'%(region_label.lower(), logstrings[logscale])
+	fig.savefig(os.path.join(ws.folders['website/static/images'], filename), bbox_inches='tight', dpi=300)

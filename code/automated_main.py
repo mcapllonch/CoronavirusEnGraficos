@@ -40,7 +40,8 @@ def update_all():
 	dh.update_spain_isciii()
 
 	# Download Colombian data from INS
-	dh.update_colombia_ins()
+	# Not yet, because the web scraping does not update the data
+	# dh.update_colombia_ins()
 
 	# Run analysis
 	am.run_analysis()

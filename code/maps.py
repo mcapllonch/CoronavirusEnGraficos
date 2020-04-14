@@ -92,6 +92,9 @@ def colombia_map(variable='confirmed', logscale=False):
 	if nlinticks <= 5:
 		max_rounded = utl.round_up_order(max_value, order - 1)
 		nlinticks = max_rounded // (10 ** (order - 1)) + 1
+	# Now, if nlinticks is greater than 11, tick labels may look too tight, so go crop it
+	if nlinticks > 11:
+		nlinticks = 11
 
 	if logscale:
 		palette = brewer['Reds'][order + 1]

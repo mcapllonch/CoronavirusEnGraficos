@@ -48,13 +48,27 @@ def update_all():
 
 if __name__ == "__main__":
 
-	# 6 hours in seconds
-	sleep_time = 6 * 3600
+	# # 6 hours in seconds
+	# sleep_time = 6 * 3600
+
+	# Flags
+	already_today = False
+	last_update_day = datetime.now().day
+
+	# 30 minutes in seconds
+	# This way the data update process is surely only done once a day if I impose the right conditions
+	sleep_time = 30 * 60
 
 	while True:
-		print('')
-		print(datetime.now())
-		# Update all data
-		update_all()
+		# Only if it is near mid-night
+		now = datetime.now()
+		if now.hour == 23 and not already_today:
+			print('')
+			print(now)
+			# Update all data
+			update_all()
+			today = now.day
+			already_today = today == last_update_day
+			last_update_day = today
 		# Sleep
 		time.sleep(sleep_time)

@@ -27,7 +27,7 @@ import matplotlib.dates as mdates
 from bokeh.plotting import figure, save
 from bokeh.models import Slider, HoverTool, Range1d, NumeralTickFormatter, DatetimeTickFormatter, GeoJSONDataSource, LinearColorMapper, LogColorMapper, ColorBar, BasicTicker, LogTicker
 from bokeh.io import show, output_file, curdoc
-from bokeh.palettes import brewer, Spectral11, Category20, Category10
+from bokeh.palettes import brewer, Category20, Category10
 from bokeh.layouts import widgetbox, row, column
 
 import workspace as ws
@@ -189,10 +189,8 @@ def compare_countries(start, end, variable='confirmed', countries=None, label=''
 			alpha = 0.2
 			legend = False
 			add_text = True
-		elif ncountries > len(Spectral11):
+		elif ncountries > 10:
 			colors = category20[:]
-		elif ncountries > len(category10):
-			colors = Spectral11[:]
 		else:
 			colors = category10[:]
 
@@ -532,8 +530,8 @@ def new_time_series(start, end, y_range=None, country='world', variable='new', u
 			data = get_new_7_days(start_index, end_index, variable, country=country, avg=True)
 			
 			# Add a circle renderer with a size, color and alpha
-			p.circle('date_obj', variable, source=data, color=Spectral11[i], size=5, alpha=1., legend_label=country)
-			p.line('date_obj', variable, source=data, color=Spectral11[i], line_width=2, alpha=1., legend_label=country)
+			p.circle('date_obj', variable, source=data, color=Category10[10][i], size=5, alpha=1., legend_label=country)
+			p.line('date_obj', variable, source=data, color=Category10[10][i], line_width=2, alpha=1., legend_label=country)
 
 		# Arrange figure
 		# p.x_range = Range1d(data['date_obj'][0], data['date_obj'][-1])
@@ -687,10 +685,13 @@ def top_n_time_series(df, n=10, key_groupby='country_region', dates='date', vari
 	width = 8
 	fig, ax = plt.subplots(figsize=(width, width * 0.61803398874988))
 
+	data = {}
+
 	for key in top_5:
 		# Select the part of the dataframe I want
-		data = df[df[key_groupby] == key]
-		ax.plot(data[dates], data[variable], label=data[label].tolist()[0])
+		data_ = df[df[key_groupby] == key]
+		ax.plot(data_[dates], data_[variable], label=data_[label].tolist()[0])
+		data[key] = data_
 
 	ax.set_xlabel('Fecha')
 	ax.set_ylabel('Casos %s'%ws.trans[variable])
@@ -706,3 +707,42 @@ def top_n_time_series(df, n=10, key_groupby='country_region', dates='date', vari
 	}
 	filename = '%s_time_series_%s_v1.png'%(region_label.lower(), logstrings[logscale])
 	fig.savefig(os.path.join(ws.folders['website/static/images'], filename), bbox_inches='tight', dpi=300)
+
+	# Figure in bokeh
+	# print(list(data.values())[0][dates].tolist())
+	dates_ = list(data.values())[0][dates].tolist()
+	p = figure(
+			plot_width=800, 
+			plot_height=400, 
+			x_axis_type="datetime", 
+			title=title, 
+			# x_range=(dates_[0], dates_[-1]), 
+		)
+
+	colors = Category10[5]
+	
+	# Iterate over top_5
+	for i, key in enumerate(top_5):
+		data_ = data[key]
+		# print(data_[dates])
+		region_name = data_[label].tolist()[0]
+		p.circle(dates, variable, source=data_, color=colors[i], size=5, alpha=0.5, legend_label=region_name)
+		p.line(dates, variable, source=data_, color=colors[i], line_width=2, alpha=0.5, legend_label=region_name)
+		# p.circle(x=data_[dates], y=data_[variable], color=colors[i], size=5, alpha=0.5, legend_label=region_name)
+		# p.line(x=data_[dates], y=data_[variable], color=colors[i], line_width=2, alpha=0.5, legend_label=region_name)
+
+	# Arrange figure
+	p.xaxis.axis_label = 'Fecha'
+	p.yaxis.axis_label = 'Casos %s'%ws.trans[variable]
+	p.legend.location = 'top_left'
+	p.xaxis.formatter = DatetimeTickFormatter(days="%d %B")
+	p.yaxis.formatter = NumeralTickFormatter(format="0")
+	p.toolbar.logo = None
+	# It seems I need to put this, otherwise the x ranges go crazy
+	dates_ = data_[dates].tolist()
+	# p.x_range = Range1d(dates_[0], dates_[-1])
+
+	# Output to static HTML file
+	output_file(os.path.join(ws.folders['website/static/images'], filename.replace('.png', '.html')))
+	# show(p)
+	save(p)

@@ -222,15 +222,15 @@ def da_colombia_specific():
 	# Make columns with lowered and 'normalized' values
 	df['departamento_normalized'] = df['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 	dt['departamento_normalized'] = dt['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
-	dt['capitales_normalized'] = dt['capitales'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
+	dt['otras_denominaciones_normalized'] = dt['otras_denominaciones'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 
 	# Remove any spaces from the iso codes
 	dt['iso'] = dt['iso'].apply(lambda x: x.replace(' ', ''))
 
 	# Some provinces in df carry the names of their capital cities, so this needs to be sorted out
-	dt_short = dt[~dt['capitales'].isnull()]
-	capitales = {k: {'norm': a, 'departamento': b[:-1]} if b[-1] == ' ' else b for k, a, b in zip(dt_short['capitales'], dt_short['capitales_normalized'], dt_short['departamento'])}
-	for c, d in capitales.items():
+	dt_short = dt[~dt['otras_denominaciones'].isnull()]
+	otras_denominaciones = {k: {'norm': a, 'departamento': b[:-1]} if b[-1] == ' ' else b for k, a, b in zip(dt_short['otras_denominaciones'], dt_short['otras_denominaciones_normalized'], dt_short['departamento'])}
+	for c, d in otras_denominaciones.items():
 		a = d['norm']
 		b = d['departamento']
 		df.loc[df['departamento_normalized'] == a, 'departamento'] = b

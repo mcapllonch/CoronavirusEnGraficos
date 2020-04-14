@@ -97,7 +97,7 @@ def colombia_map(variable='confirmed', logscale=False):
 		nlinticks = 11
 
 	if logscale:
-		palette = brewer['Reds'][order + 1]
+		palette = brewer['Reds'][order + 1][::-1]
 	else:
 		try:
 			palette = brewer['Reds'][nlinticks - 1]
@@ -166,21 +166,31 @@ def colombia_map(variable='confirmed', logscale=False):
 	p.xgrid.grid_line_color = None
 	p.ygrid.grid_line_color = None
 
-	# Add patch renderer to figure. 
-	p.patches(
-			'xs', 
-			'ys', 
-			source = geosource, 
-			fill_color = {'field' :variable, 'transform' : color_mapper_log}, 
-			line_color = 'black', 
-			line_width = 1, 
-			fill_alpha = 1
-		)
 
 	#Specify layout
 	if logscale:
+		# Add patch renderer to figure. 
+		p.patches(
+				'xs', 
+				'ys', 
+				source = geosource, 
+				fill_color = {'field' :variable, 'transform' : color_mapper_log}, 
+				line_color = 'black', 
+				line_width = 1, 
+				fill_alpha = 1
+			)
 		p.add_layout(color_bar_log, 'below')
 	else:
+		# Add patch renderer to figure. 
+		p.patches(
+				'xs', 
+				'ys', 
+				source = geosource, 
+				fill_color = {'field' :variable, 'transform' : color_mapper}, 
+				line_color = 'black', 
+				line_width = 1, 
+				fill_alpha = 1
+			)
 		p.add_layout(color_bar, 'below')
 
 	# Save file

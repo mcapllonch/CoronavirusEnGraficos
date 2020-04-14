@@ -96,7 +96,7 @@ def make_graphs():
 	# Get data
 	df = ws.data_specific['Colombia']
 	# Map for Colombia
-	maps.colombia_map()
+	maps.colombia_map(logscale=True)
 	# Bar plot
 	tls.horizontal_bar_plot('confirmed', df['last_date'], country='Colombia')
 	tls.top_n_time_series(

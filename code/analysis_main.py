@@ -212,11 +212,14 @@ def da_colombia_specific():
 
 	# Do some processing on the data
 
+	# Remove spaces in the end of the column names
+	df.columns = [c[:-1] if c[-1] == ' ' else c for c in df.columns]
 	# Lower case columns
 	df.columns = [c.lower().replace(' ', '_') for c in df.columns]
 	dt.columns = [c.lower().replace(' ', '_') for c in dt.columns]
 
 	# Rename some columns
+	print(df.columns)
 	df.rename(columns={'departamento_o_distrito': 'departamento'}, inplace=True)
 
 	# Make columns with lowered and 'normalized' values
@@ -239,6 +242,9 @@ def da_colombia_specific():
 	df['departamento_normalized'] = df['departamento'].str.lower().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8').str.replace(' ', '').str.replace('.', '')
 
 	# Make dates homogeneous; this is necessary for the time series dataframe
+	# "/20" to "/2020": this just makes my life simpler until they use the date format from the US.
+	df['fecha_de_diagnóstico'] = df['fecha_de_diagnóstico'].apply(lambda x: x.replace("/20", "/2020") if (x[-3:] == "/20") else x)
+	# Make strings homogeneous
 	df['fecha_de_diagnóstico'] = df['fecha_de_diagnóstico'].apply(lambda x: datetime.strptime(x, '%d/%m/%Y').date().strftime('%d/%m/%Y'))
 
 	# Merged the two into df

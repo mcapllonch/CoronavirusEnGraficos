@@ -219,7 +219,6 @@ def da_colombia_specific():
 	dt.columns = [c.lower().replace(' ', '_') for c in dt.columns]
 
 	# Rename some columns
-	print(df.columns)
 	df.rename(columns={'departamento_o_distrito': 'departamento'}, inplace=True)
 
 	# Make columns with lowered and 'normalized' values

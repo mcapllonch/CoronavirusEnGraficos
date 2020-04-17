@@ -60,9 +60,9 @@ if __name__ == "__main__":
 	sleep_time = 30 * 60
 
 	while True:
-		# Only if it is near mid-night
+		# Only if it is near mid-night in EST (5h behind UTC, which is where the server is)
 		now = datetime.now()
-		if now.hour == 23 and not already_today:
+		if now.hour == 18 and not already_today:
 			print('')
 			print(now)
 			# Update all data
